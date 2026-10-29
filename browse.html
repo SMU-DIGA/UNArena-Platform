@@ -85,11 +85,11 @@ mark { background: color-mix(in srgb, var(--series-4) 45%, transparent); color: 
       </div>
       <div class="f">
         <label for="y0" data-zh="起始年份">From year</label>
-        <input type="number" id="y0" min="1946" max="2025" value="1946">
+        <input type="number" id="y0" min="1946" max="2025" value="1946" data-end-max>
       </div>
       <div class="f">
         <label for="y1" data-zh="截止年份">To year</label>
-        <input type="number" id="y1" min="1946" max="2025" value="2025">
+        <input type="number" id="y1" min="1946" max="2025" value="2025" data-end-max>
       </div>
       <div class="f">
         <label for="topic" data-zh="专题条目">Topic entry</label>
@@ -170,7 +170,7 @@ function apply() {
   const q = $('q').value.trim().toLowerCase();
   const body = $('body').value;
   const y0 = +$('y0').value || 1946;
-  const y1 = +$('y1').value || 2025;
+  const y1 = +$('y1').value || END;
   const onlySpeech = $('f-speech').checked;
   const onlyVeto = $('f-veto').checked;
   const onlyEntry = $('f-entry').checked;
@@ -280,7 +280,7 @@ $('topic').innerHTML = `<option value="">${L('Any or none', '不限')}</option>`
   el.addEventListener(el.tagName === 'INPUT' && el.type === 'text' ? 'input' : 'change', apply);
 });
 $('reset').onclick = () => {
-  $('q').value = ''; $('body').value = ''; $('y0').value = 1946; $('y1').value = 2025;
+  $('q').value = ''; $('body').value = ''; $('y0').value = 1946; $('y1').value = END;
   $('sort').value = 'date'; $('topic').value = '';
   ['f-speech', 'f-veto', 'f-entry'].forEach((id) => ($(id).checked = false));
   apply();

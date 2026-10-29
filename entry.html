@@ -247,7 +247,7 @@ function render() {
 
 /* ------------------------------------------------------------- year chart */
 function drawYears() {
-  const lo = 1946, hi = 2025;
+  const lo = 1946, hi = END;
   const years = [];
   for (let y = lo; y <= hi; y++) years.push(y);
   const map = Object.fromEntries(T.years);
@@ -322,7 +322,7 @@ function drawMeetings() {
         <div class="meta">
           ${m.ns ? `<span>${L(`${m.ns} speeches`, `发言 ${m.ns} 次`)}</span>` : ''}
           ${m.res.length ? `<span>${esc(m.res.slice(0, 3).join(', '))}${m.res.length > 3 ? ` +${m.res.length - 3}` : ''}</span>` : ''}
-          <span>${L(`${fmt(m.dl)} chars of description`, `描述 ${fmt(m.dl)} 字符`)}</span>
+          ${m.dl ? `<span>${L(`${fmt(m.dl)} chars of description`, `描述 ${fmt(m.dl)} 字符`)}</span>` : ''}
         </div>
       </div>
       <div class="side">

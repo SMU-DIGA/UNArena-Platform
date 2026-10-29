@@ -120,7 +120,7 @@
 
   <!-- ================================================= Security Council == -->
   <div class="sechead"><span class="no" data-zh="第一部分">Part 1</span><h2 data-zh="安全理事会">Security Council</h2>
-    <span class="s" data-zh="3,000 余次记录在案的表决，1946–2025，含未通过的草案">3,000+ recorded votes, 1946–2025, failed drafts included</span></div>
+    <span class="s" data-end data-zh="3,000 余次记录在案的表决，1946–2025，含未通过的草案">3,000+ recorded votes, 1946–2025, failed drafts included</span></div>
 
   <div class="card" id="veto-card">
     <header>
@@ -136,7 +136,7 @@
     <div class="split">
       <div>
         <p class="panel-t" data-zh="否决次数：语料库与公布记录对比">Vetoes cast, corpus against the published record</p>
-        <p class="panel-s" data-zh="实心柱：语料库收录 · 浅色框：公布的参考数据，截至 2025 年 12 月 31 日">Solid bar: in the corpus · pale frame: published reference, to 31 Dec 2025</p>
+        <p class="panel-s" data-zh="实心柱：语料库收录 · 浅色框：公布的参考数据，截至 2025 年 12 月 31 日；此后的否决取自逐字记录">Solid bar: in the corpus · pale frame: published reference to 31 Dec 2025, later vetoes from the verbatim records</p>
         <div id="veto-cmp" class="chart" style="height:318px"></div>
       </div>
       <div>
@@ -209,7 +209,7 @@
 
   <!-- ================================================ General Assembly == -->
   <div class="sechead"><span class="no" data-zh="第二部分">Part 2</span><h2 data-zh="联合国大会">General Assembly</h2>
-    <span class="s" data-zh="79 届会议，1946–2024 · 每个序列均标注覆盖率等级">79 sessions, 1946–2024 · coverage bands on every series</span></div>
+    <span class="s" id="ga-span" data-zh="79 届会议，1946–2024 · 每个序列均标注覆盖率等级">79 sessions, 1946–2024 · coverage bands on every series</span></div>
 
   <div class="card">
     <header>
@@ -327,6 +327,9 @@ const tipRow = (sw, k, v) => `<div style="display:flex;justify-content:space-bet
   <b style="font-variant-numeric:tabular-nums">${v}</b></div>`;
 const tipFoot = (t, c) => `<div style="color:${c.muted};font-size:11.5px;margin-top:5px;max-width:260px;white-space:normal">${t}</div>`;
 
+{ const g = A.ga_sessions, n = g.length, y = g[n - 1].year;
+  document.getElementById('ga-span').textContent = L(`${n} sessions, 1946–${y} · coverage bands on every series`, `${n} 届会议，1946–${y} · 每个序列均标注覆盖率等级`); }
+
 /* ----------------------------------------------------------------- tiles */
 const vCorpus = sum(P5.map((s) => V.corpus[s]));
 const vRef = sum(P5.map((s) => V.reference[s]));
@@ -334,7 +337,7 @@ const dT = A.drafts.total, dN = sum(Object.values(dT));
 const gaHave = sum(A.ga_sessions.map((s) => s.have)), gaExp = sum(A.ga_sessions.map((s) => s.expected));
 document.getElementById('tiles').innerHTML = `
   <div class="tile"><div class="k">${L('Vetoes cast in the corpus', '语料库中的否决次数')}</div><div class="v">${fmt(vCorpus)}</div>
-    <div class="s">${L(`published record: ${fmt(vRef)} to the end of 2025`, `公布记录：截至 2025 年底 ${fmt(vRef)} 次`)}</div></div>
+    <div class="s">${L(`published record: ${fmt(vRef)}${END > 2025 ? ', later years from the records' : ' to the end of 2025'}`, `公布记录：${fmt(vRef)} 次${END > 2025 ? '，2025 年以后取自逐字记录' : '，截至 2025 年底'}`)}</div></div>
   <div class="tile"><div class="k">${L('Vetoed drafts held', '收录的被否决草案')}</div><div class="v">${Math.round(100 * V.drafts_held / V.drafts_reference)}%</div>
     <div class="s">${L(`${fmt(V.drafts_held)} of the ${fmt(V.drafts_reference)} on the published list`, `公布清单 ${fmt(V.drafts_reference)} 项中的 ${fmt(V.drafts_held)} 项`)}</div></div>
   <div class="tile"><div class="k">${L('Council texts voted down', '安理会被否决或未通过的文本')}</div><div class="v">${fmt(A.outcomes.total.vetoed + A.outcomes.total.failed)}</div>
@@ -347,7 +350,7 @@ const refOrder = [...P5].sort((a, b) => V.reference[b] - V.reference[a]);
 {
   const diff = refOrder.map((s) => `${SHORT[s]} ${V.corpus[s]}/${V.reference[s]}`).join(' · ');
   const peak = YEARS.map((y, i) => [y, sum(P5.map((s) => V.by_year[s][i]))]).sort((a, b) => b[1] - a[1])[0];
-  const decs = [[1946, 1989], [1990, 2009], [2010, 2025]].map(([a, b]) => {
+  const decs = [[1946, 1989], [1990, 2009], [2010, END]].map(([a, b]) => {
     const per = {};
     P5.forEach((s) => { per[s] = sum(V.by_year[s].slice(a - 1946, b - 1945)); });
     const tot = sum(Object.values(per));
@@ -367,7 +370,7 @@ const refOrder = [...P5].sort((a, b) => V.reference[b] - V.reference[a]);
   document.getElementById('veto-meta').innerHTML = L(`
     <span><b>Reference</b> ${esc(V.reference_note)}</span>
     <span><b>Missing</b> ${fmt(V.drafts_reference - V.drafts_held)} vetoed drafts, mostly at meetings the corpus does not hold</span>`, `
-    <span><b>参考</b> 达格·哈马舍尔德图书馆否决清单，以及英国外交部 1946–2015 年被否决草案表；按常任理事国、按每次被否决的表决统计，截至 2025 年 12 月 31 日。</span>
+    <span><b>参考</b> 达格·哈马舍尔德图书馆否决清单，以及英国外交部 1946–2015 年被否决草案表；按常任理事国、按每次被否决的表决统计，截至 2025 年 12 月 31 日；此后的否决取自逐字记录。</span>
     <span><b>缺失</b> ${fmt(V.drafts_reference - V.drafts_held)} 项被否决的草案，大多出自语料库未收录的会议</span>`);
 }
 
@@ -475,7 +478,7 @@ document.getElementById('draft-n').textContent =
     const bad = g('vetoed') + g('failed');
     return { bad, rate: 100 * bad / (bad + g('adopted')), v: g('vetoed') };
   };
-  const e1 = era(1946, 1989), e2 = era(1990, 2009), e3 = era(2010, 2025);
+  const e1 = era(1946, 1989), e2 = era(1990, 2009), e3 = era(2010, END);
   document.getElementById('draft-find').innerHTML = LANG === 'zh'
     ? `<b>冷战期间，提交表决的文本有 ${pct(e1.rate)} 未获通过</b>（${fmt(e1.bad)} 次，其中 ${fmt(e1.v)} 次被否决）。1990 年后这一比例骤降至 ${pct(e2.rate)}——二十年间仅 ${fmt(e2.bad)} 次，是安理会最团结一致的时期——而 2010 年以来又回升到 ${pct(e3.rate)}，其中否决 ${fmt(e3.v)} 次。`
     : `<b>During the Cold War ${pct(e1.rate)} of the texts put to a vote failed</b> (${fmt(e1.bad)},
@@ -530,7 +533,7 @@ const PAIR_SLOT = {};                                   // a pair keeps its colo
 chosen.forEach((k, i) => { PAIR_SLOT[k] = i; });
 
 const perSel = document.getElementById('p5-period');
-perSel.innerHTML = `<option value="-1">${L('All years, 1946–2025', '全部年份，1946–2025')}</option>`
+perSel.innerHTML = `<option value="-1">${L(`All years, 1946–${END}`, `全部年份，1946–${END}`)}</option>`
   + P.decades.map((d, i) => `<option value="${i}">${decL(d)}</option>`).join('');
 perSel.onchange = () => { period = +perSel.value; pm.draw(); pl.draw(); syncP5Text(); };
 
@@ -538,7 +541,7 @@ const cellOf = (p) => (period < 0 ? p.all : p.dec[period]);
 function syncP5Text() {
   const n = period < 0 ? P.n_votes : P.base_votes[period];
   document.getElementById('p5-mt').textContent =
-    L(`Agreement, ${period < 0 ? '1946–2025' : P.decades[period]}`, `一致率，${period < 0 ? '1946–2025' : decL(P.decades[period])}`);
+    L(`Agreement, ${period < 0 ? `1946–${END}` : P.decades[period]}`, `一致率，${period < 0 ? `1946–${END}` : decL(P.decades[period])}`);
   document.getElementById('p5-ms').textContent = L(
     `${fmt(n)} votes with at least two permanent members' directions recorded · colour scale starts at ${scaleFloor()}%, not 0`,
     `${fmt(n)} 次表决记录了至少两个常任理事国的投票方向 · 色阶从 ${scaleFloor()}% 起，而非 0`);
@@ -755,7 +758,7 @@ tableView(document.getElementById('ga-table'),
   [L('Session', '届会'), L('Opened', '开幕'), L('In corpus', '语料库收录'), L('Expected', '预期数'), L('Coverage', '覆盖率'),
    L('Band', '等级'), L('Meetings that adopted', '通过决议的会议'), L('Plenary span', '全体会议跨度')],
   GS.map((s) => [s.session, s.year, fmt(s.have), fmt(s.expected), pct(s.pct), s.band, fmt(s.meetings), fmt(s.span)]),
-  L('Show all 79 sessions', '显示全部 79 届会议'));
+  L(`Show all ${A.ga_sessions.length} sessions`, `显示全部 ${A.ga_sessions.length} 届会议`));
 
 /* ========================================================= 5. GA stance */
 const D = S.decades;
@@ -764,8 +767,8 @@ const D = S.decades;
     `<option value="${i}"${(k ? i === D.length - 1 : i === 0) ? ' selected' : ''}>${decL(d)}</option>`).join('');
 });
 const q = (id) => document.getElementById(id);
-/* decade indices -> '1946–2025', '1960–1979' */
-const span = (a, b) => `${a ? 1940 + 10 * a : 1946}–${b === D.length - 1 ? 2025 : 1949 + 10 * b}`;
+/* decade indices -> '1946–2026', '1960–1979' */
+const span = (a, b) => `${a ? 1940 + 10 * a : 1946}–${b === D.length - 1 ? 2000 + +D[b].slice(-2) : 1949 + 10 * b}`;
 function stanceRows() {
   let a = +q('st-from').value, b = +q('st-to').value;
   if (a > b) [a, b] = [b, a];

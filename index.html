@@ -406,7 +406,7 @@ section.outro .links a { text-decoration: none; padding: 9px 17px; }
 
 <main class="story">
   <section class="open" id="open">
-    <div class="eyebrow rise" data-zh="1946 — 2025 · 安全理事会与联合国大会">1946 — 2025 · Security Council &amp; General Assembly</div>
+    <div class="eyebrow rise" data-end data-zh="1946 — 2025 · 安全理事会与联合国大会">1946 — 2025 · Security Council &amp; General Assembly</div>
     <h1 class="rise" data-zh="联合国八十年表决，<br><em>记录如是说。</em>">Eighty years of UN voting,<br><em>as the records tell it.</em></h1>
     <p class="rise" id="intro1">The UN's two voting chambers have never kept the same beat. In the years the
       veto had the Council seized up, the Assembly was busy inventing a way around it; in the
@@ -461,7 +461,7 @@ section.outro .links a { text-decoration: none; padding: 9px 17px; }
         are directly comparable · dots mark milestones · click to jump</span>
     </div>
     <div class="rail-track" id="rail-track"><div class="rail-cursor" id="rail-cursor"></div></div>
-    <div class="rail-axis"><span>1946</span><span>1966</span><span>1986</span><span>2006</span><span>2025</span></div>
+    <div class="rail-axis"><span>1946</span><span>1966</span><span>1986</span><span>2006</span><span data-end>2025</span></div>
   </div>
 </div>
 
@@ -531,7 +531,7 @@ function setEra(idx) {
 /* Count the four headline numbers up on arrival. The value is the fact; the
    count is only how it lands. */
 const HEADLINE = [
-  [P.totals.sc_total + P.totals.ga_total, L('meetings with a vote record, 1946–2025', '次有表决记录的会议，1946–2025'), 'ballot'],
+  [P.totals.sc_total + P.totals.ga_total, L(`meetings with a vote record, 1946–${END}`, `次有表决记录的会议，1946–${END}`), 'ballot'],
   [17401, L('resolutions and drafts, with their tallies', '项决议与草案，附计票'), 'file'],
   [P.totals.meetings, L('meetings carrying a background entry', '次会议挂有背景条目'), 'clock'],
   [P.totals.topics, L('topic entries, from Palestine to piracy', '个专题条目，从巴勒斯坦到海盗问题'), 'book'],

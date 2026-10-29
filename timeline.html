@@ -13,7 +13,7 @@
 </head>
 <body>
 <main>
-  <h1 data-zh="活动时间线，1946—2025">Activity timeline, 1946—2025</h1>
+  <h1 data-end data-zh="活动时间线，1946—2025">Activity timeline, 1946—2025</h1>
   <p class="lede" data-l="en">
     Annual output from both bodies, aligned on the <strong>calendar year</strong>. The Assembly
     corpus is stored by session (the Nth session opens in September and runs into the following
@@ -122,11 +122,11 @@ const BAND_LABEL = {
   PARTIAL_YEAR: L('partial year', '不完整年份'), MISSING: L('missing', '缺失') };
 
 const ERAS = [
-  [L('Full span 1946–2025', '全时段 1946–2025'), 1946, 2025],
+  [L(`Full span 1946–${END}`, `全时段 1946–${END}`), 1946, END],
   [L('Cold War 1946–1989', '冷战 1946–1989'), 1946, 1989],
   [L('Post-Cold War 1990–2001', '冷战后 1990–2001'), 1990, 2001],
   [L('Counter-terrorism 2001–2010', '反恐时期 2001–2010'), 2001, 2010],
-  [L('Contemporary 2011–2025', '当代 2011–2025'), 2011, 2025],
+  [L(`Contemporary 2011–${END}`, `当代 2011–${END}`), 2011, END],
 ];
 let era = 0;
 let selectedYear = 2022;
@@ -243,8 +243,8 @@ mountChart(document.getElementById('main-chart'), (c, base, ax) => {
          the grid would need. So this one sits inside the plot instead, in the
          top-left corner the 1940s-50s bars leave empty. Panels ②/③ have no
          markers, so their titles stay above, one clear line off the top tick. */
-      { text: L('① Council resolutions adopted (per year) · all 2,811 numbers held, usable throughout',
-                '① 安理会通过的决议（每年）· 2,811 个编号全部收录，全程可用'),
+      { text: L(`① Council resolutions adopted (per year) · all ${fmt(sum(T.sc.adopted))} numbers held, usable throughout`,
+                `① 安理会通过的决议（每年）· ${fmt(sum(T.sc.adopted))} 个编号全部收录，全程可用`),
         left: 78, top: 162,
         textStyle: { fontSize: 13, fontWeight: 600, color: c.primary } },
       { text: L('② Assembly resolutions adopted (per year) · dated by the adoption date in the text',
@@ -358,10 +358,10 @@ const peakI = T.sc.adopted.indexOf(Math.max(...T.sc.adopted.map((v) => v || 0)))
 const vetoTotal = sum(T.sc.vetoes);
 document.getElementById('tiles').innerHTML = `
   <div class="tile"><div class="k">${L('Council resolutions', '安理会决议')}</div><div class="v">${fmt(scTotal)}</div>
-    <div class="s">${L('1946–2025 · every S/RES number held', '1946–2025 · 收录全部 S/RES 编号')}</div></div>
+    <div class="s">${L(`1946–${END} · every S/RES number held`, `1946–${END} · 收录全部 S/RES 编号`)}</div></div>
   <div class="tile"><div class="k">${L('Assembly resolutions', '大会决议')}</div><div class="v">${fmt(gaTotal)}</div>
     <div class="s">${L('placed in a calendar year by their adoption date', '按通过日期归入日历年')}</div></div>
-  <div class="tile"><div class="k">${L('Usable Assembly years', '可用的大会年份')}</div><div class="v">${usable} <span style="font-size:16px;color:var(--text-muted)">/ 80</span></div>
+  <div class="tile"><div class="k">${L('Usable Assembly years', '可用的大会年份')}</div><div class="v">${usable} <span style="font-size:16px;color:var(--text-muted)">/ ${YEARS.length}</span></div>
     <div class="s">${L('calendar years at ≥80% coverage', '覆盖率 ≥80% 的日历年')}</div></div>
   <div class="tile"><div class="k">${L('Council peak year', '安理会峰值年份')}</div><div class="v">${YEARS[peakI]}</div>
     <div class="s">${L(`${T.sc.adopted[peakI]} resolutions, the highest on record`, `${T.sc.adopted[peakI]} 项决议，历史最高`)}</div></div>
@@ -384,7 +384,7 @@ function rangeNote(a, b) {
   return L(`Showing ${a}–${b}. The slider fine-tunes further; dragging or scrolling zooms all three panels together.`,
            `当前显示 ${a}–${b} 年。滑块可进一步微调；拖动或滚动会同时缩放三个面板。`);
 }
-document.getElementById('range-note').textContent = rangeNote(1946, 2025);
+document.getElementById('range-note').textContent = rangeNote(1946, END);
 
 /* click a year on the main chart to pin it in the detail panel */
 echarts.getInstanceByDom(document.getElementById('main-chart')).on('click', (p) => {
@@ -398,7 +398,7 @@ tableView(document.getElementById('main-table'),
    L('Assembly adopted', '大会通过'), L('Assembly coverage', '大会覆盖率'), L('Band', '等级'), L('Vetoes cast', '否决次数')],
   YEARS.map((y, i) => [y, fmt(T.sc.adopted[i]), fmt(T.sc.meetings[i]), fmt(T.ga.adopted[i]),
                        pct(T.ga.coverage_pct[i]), BAND_LABEL[T.ga.band[i]] || T.ga.band[i], fmt(T.sc.vetoes[i])]),
-  L('Show year-by-year table (80 rows)', '显示逐年数据表（80 行）'));
+  L(`Show year-by-year table (${YEARS.length} rows)`, `显示逐年数据表（${YEARS.length} 行）`));
 
 tableView(document.getElementById('struct-table'),
   [L('Year', '年份'), L('Adopted unanimously', '一致通过'), L('Chapter VII', '第七章'), L('Abstentions per resolution', '每项决议的弃权数')],

@@ -44,6 +44,22 @@ const catname = (c) => (ZH.categories && ZH.categories[c]) || c;
   if (TL) TL.events = TL.events.map(([y, t]) => [y, (ZH.timeline_events || {})[y] || t]);
 })();
 
+/* The last year in the data. The corpus grows as new records come in, so pages
+   never hard-code it: static text that names it carries data-end, and its
+   "2025" is rewritten here, before the Chinese swap below. */
+const END = Math.max(2025, ...[window.TIMELINE, window.STORY, window.ANALYSIS, window.BROWSE]
+  .filter((d) => d && d.years && d.years.length).map((d) => d.years[d.years.length - 1]),
+  ...(window.TOPIC_DRIFT ? window.TOPIC_DRIFT.base.SC.map((x) => x[0]) : []),
+  ...(window.TOPICS ? window.TOPICS.topics.filter((t) => t.years.length).map((t) => t.years[t.years.length - 1][0]) : []));
+document.querySelectorAll('[data-end]').forEach((el) => {
+  el.innerHTML = el.innerHTML.replace(/2025/g, END);
+  if (el.dataset.zh) el.dataset.zh = el.dataset.zh.replace(/2025/g, END);
+});
+document.querySelectorAll('[data-end-max]').forEach((el) => {
+  el.max = END;
+  if (el.value === '2025') el.value = END;
+});
+
 /* Short static strings: data-zh replaces the content, data-zh-ph the
    placeholder, data-zh-title the tooltip. The scripts sit at the end of
    <body>, so the whole page is parsed by the time this runs. */
@@ -367,7 +383,7 @@ function drawnCover(title, years, id, kicker) {
   const W = 640, H = 360, pad = 34;
   const span = years && years.length
     ? [Math.min(...years.map((y) => y[0])), Math.max(...years.map((y) => y[0]))]
-    : [1946, 2025];
+    : [1946, END];
   const lo = Math.min(span[0], 2020), hi = Math.max(span[1], lo + 4);
   const max = years && years.length ? Math.max(...years.map((y) => y[1])) : 1;
   const bw = Math.max(2.4, (W - pad * 2) / (hi - lo + 1) - 1.2);
