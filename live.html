@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-zh="实时 · UNArena Platform">Live · UNArena Platform</title>
+<script src="assets/boot.js"></script>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.live td.wrap, .live th.wrap { white-space: normal; text-align: left; min-width: 220px; }
+.live td.l, .live th.l { text-align: left; }
+.newslist { list-style: none; margin: 0; padding: 0; }
+.newslist li { padding: 8px 0; border-bottom: 1px solid var(--grid); font-size: 13.5px; }
+.newslist .meta { color: var(--text-muted); font-size: 12.5px; margin-right: 8px; font-variant-numeric: tabular-nums; }
+.stamp { color: var(--text-muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<main class="live">
+  <h1 data-l="en">Live: the Security Council this month</h1>
+  <h1 data-l="zh">实时：安理会近况</h1>
+  <p class="lede" data-l="en">
+    What the Security Council is due to vote on next, the mandates that are about to run out, every
+    vote taken so far this year, and the latest news. The page is refreshed automatically from the
+    UN's own schedule and documents.
+  </p>
+  <p class="lede" data-l="zh">
+    安理会接下来要表决的事项、即将到期的授权、今年以来的每一次表决，以及最新新闻。本页根据联合国自己发布的日程和文件自动更新。</p>
+  <p class="stamp" id="stamp"></p>
+
+  <div class="tiles" id="tiles"></div>
+
+  <section class="card">
+    <header><h2 data-l="en">Coming up</h2><h2 data-l="zh">接下来的表决</h2>
+      <p data-l="en">Adoptions in the Council's provisional programme of work, and mandates that expire soon. Dates marked ≈ are
+        read from the calendar grid of the programme of work, or are the last working day before a mandate expires; the
+        Council often votes a day or two earlier.</p>
+      <p data-l="zh">取自安理会的临时工作计划，以及即将到期的授权。标 ≈ 的日期是从工作计划的日历表里读出的，或是授权到期前的最后一个工作日；安理会常常提前一两天表决。</p></header>
+    <div class="tablewrap"><table id="up"></table></div>
+  </section>
+
+  <section class="card">
+    <header><h2 data-l="en">Votes this year</h2><h2 data-l="zh">今年以来的表决</h2>
+      <p data-l="en">From the verbatim records on the UN Official Document System, added as they are published (usually a few days after the meeting).</p>
+      <p data-l="zh">取自联合国正式文件系统上的逐字记录，记录一发布就收进来（通常在会后几天）。</p></header>
+    <div class="tablewrap"><table id="votes"></table></div>
+  </section>
+
+  <div class="grid2">
+    <section class="card">
+      <header><h2 data-l="en">Mandates and when they expire</h2><h2 data-l="zh">各项授权的到期日</h2>
+        <p data-l="en">From the Secretariat's monthly forecast of the Council's work.</p>
+        <p data-l="zh">取自秘书处每月发布的安理会工作预报。</p></header>
+      <div class="tablewrap"><table id="exp"></table></div>
+    </section>
+    <section class="card">
+      <header><h2 data-l="en">News</h2><h2 data-l="zh">新闻</h2>
+        <p data-l="en">Headlines from UN News, UN Press and news searches on the items above; each links to its publisher.</p>
+        <p data-l="zh">来自联合国新闻、联合国新闻稿，以及针对上述事项的新闻搜索；标题链接到原发布方。</p></header>
+      <ul class="newslist" id="news"></ul>
+    </section>
+  </div>
+
+  <p class="note" data-l="en">Sources: UN Security Council monthly forecast and provisional programme of work (main.un.org); UN Official
+    Document System (documents.un.org); UN News, UN Press and Google News. Headlines belong to their publishers.</p>
+  <p class="note" data-l="zh">来源：安理会月度预报与临时工作计划（main.un.org）；联合国正式文件系统（documents.un.org）；联合国新闻、联合国新闻稿与 Google News。新闻标题版权属于原发布方。</p>
+</main>
+
+<script src="data/live.js"></script>
+<script src="data/zh.js"></script>
+<script src="assets/common.js"></script>
+<script>
+const D = window.LIVE;
+const OUT = { adopted: L('Adopted', '通过'), vetoed: L('Vetoed', '被否决'), 'not adopted': L('Not adopted', '未通过') };
+const BADGE = { adopted: 'good', vetoed: 'critical', 'not adopted': 'warning' };
+const KIND = { mandate_renewal: L('Mandate renewal', '授权续期'), adoption: L('Adoption', '表决') };
+const names = (xs) => xs.map(cname).join(L(', ', '、'));
+
+document.getElementById('stamp').textContent =
+  L('Updated ', '更新于 ') + D.generated_at.replace('T', ' ').replace('+00:00', ' UTC');
+
+const y = D.votes.length, ad = D.votes.filter((v) => v.outcome === 'adopted').length;
+document.getElementById('tiles').innerHTML = [
+  [L('Next vote', '下一次表决'), D.upcoming.length ? D.upcoming[0].date : '—', D.upcoming.length ? D.upcoming[0].subject : ''],
+  [L(`Votes in ${D.council.year}`, `${D.council.year} 年表决`), fmt(y), L(`${ad} adopted`, `通过 ${ad} 项`)],
+  [L('Vetoed', '被否决'), fmt(D.votes.filter((v) => v.outcome === 'vetoed').length), ''],
+  [L('Council members', '理事国'), fmt(D.council.members.length), String(D.council.year)],
+].map(([k, v, s]) => `<div class="tile"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div><div class="s">${esc(s)}</div></div>`).join('');
+
+document.getElementById('up').innerHTML =
+  `<thead><tr><th>${L('Date', '日期')}</th><th class="l">${L('Item', '事项')}</th><th class="l">${L('Type', '类型')}</th>
+   <th>${L('Mandate expires', '授权到期')}</th><th>${L('Current resolution', '现行决议')}</th></tr></thead><tbody>` +
+  D.upcoming.map((u) => `<tr><td>${u.date_approximate ? '≈ ' : ''}${esc(u.date)}</td><td class="l">${esc(u.subject)}</td>
+    <td class="l">${esc(KIND[u.kind] || u.kind)}</td><td>${esc(u.mandate_expires || '—')}</td><td>${esc(u.current_resolution)}</td></tr>`).join('') +
+  '</tbody>';
+
+document.getElementById('votes').innerHTML =
+  `<thead><tr><th>${L('Date', '日期')}</th><th class="l">${L('Agenda', '议程')}</th><th class="l">${L('Document', '文件')}</th>
+   <th class="l">${L('Outcome', '结果')}</th><th>${L('For–Against–Abst.', '赞成–反对–弃权')}</th>
+   <th class="wrap">${L('Against / abstaining', '反对 / 弃权')}</th></tr></thead><tbody>` +
+  D.votes.map((v) => `<tr><td><a href="${esc(v.links.record)}" target="_blank" rel="noopener">${esc(v.date)}</a></td>
+    <td class="wrap">${esc(v.agenda)}</td>
+    <td class="l">${v.links.document ? `<a href="${esc(v.links.document)}" target="_blank" rel="noopener">${esc(v.document)}</a>` : esc(v.document || '—')}</td>
+    <td class="l"><span class="badge ${BADGE[v.outcome]}">${esc(OUT[v.outcome] || v.outcome)}</span></td>
+    <td>${v.tally.join('–')}</td>
+    <td class="wrap">${v.against.length ? L('Against: ', '反对：') + esc(names(v.against)) : ''}${v.against.length && v.abstaining.length ? '<br>' : ''}${v.abstaining.length ? L('Abstained: ', '弃权：') + esc(names(v.abstaining)) : ''}</td></tr>`).join('') +
+  '</tbody>';
+
+document.getElementById('exp').innerHTML =
+  `<thead><tr><th class="l">${L('Mandate', '授权')}</th><th>${L('Expires', '到期')}</th><th>${L('Set by', '依据')}</th></tr></thead><tbody>` +
+  D.expiries.map((e) => `<tr><td class="l">${esc(e.subject)}</td><td>${esc(e.expires)}</td><td>${esc(e.decision)}</td></tr>`).join('') + '</tbody>';
+
+document.getElementById('news').innerHTML = D.news.map((n) =>
+  `<li><span class="meta">${esc(n.date)}${n.source ? ' · ' + esc(n.source) : ''}</span>
+   <a href="${esc(n.link)}" target="_blank" rel="noopener">${esc(n.title)}</a></li>`).join('');
+
+</script>
+</body>
+</html>

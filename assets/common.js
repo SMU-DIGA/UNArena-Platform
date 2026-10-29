@@ -67,6 +67,7 @@ const PAGES = [
   ['timeline.html', 'Charts', '年度图表'],
   ['topics.html', 'Topics', '议题'],
   ['assessment.html', 'Analysis', '分析'],
+  ['live.html', 'Live', '实时'],
 ];
 
 /* Detail views are reached from a listing rather than the bar, so they are not
