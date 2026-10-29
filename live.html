@@ -7,8 +7,20 @@
 <script src="assets/boot.js"></script>
 <link rel="stylesheet" href="assets/style.css">
 <style>
-.live td.wrap, .live th.wrap { white-space: normal; text-align: left; min-width: 220px; }
-.live td.l, .live th.l { text-align: left; }
+.live .tablewrap { max-height: none; }
+.live table { table-layout: fixed; }
+.live th, .live td { text-align: left; white-space: normal; vertical-align: top; overflow-wrap: break-word; }
+.live td.num, .live span.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.live th { white-space: normal; }
+.live .ph { display: none; }
+@media (max-width: 640px) {
+  .live .opt { display: none; }
+  .live table { table-layout: auto; }            /* 手机上按内容分宽，隐藏的列不占位 */
+  .live th, .live td { padding: 6px 7px; font-size: 12.5px; }
+  .live .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .live .tile .v { font-size: 21px; }
+  .live .ph { display: block; margin-top: 4px; font-variant-numeric: tabular-nums; }
+}
 .newslist { list-style: none; margin: 0; padding: 0; }
 .newslist li { padding: 8px 0; border-bottom: 1px solid var(--grid); font-size: 13.5px; }
 .newslist .meta { color: var(--text-muted); font-size: 12.5px; margin-right: 8px; font-variant-numeric: tabular-nums; }
@@ -96,47 +108,47 @@ document.getElementById('tiles').innerHTML = [
   [L('Council members', '理事国'), fmt(D.council.members.length), String(D.council.year)],
 ].map(([k, v, s]) => `<div class="tile"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div><div class="s">${esc(s)}</div></div>`).join('');
 
-document.getElementById('up').innerHTML =
-  `<thead><tr><th>${L('Date', '日期')}</th><th class="l">${L('Item', '事项')}</th><th class="l">${L('Type', '类型')}</th>
-   <th>${L('Mandate expires', '授权到期')}</th><th>${L('Current resolution', '现行决议')}</th></tr></thead><tbody>` +
-  D.upcoming.map((u) => `<tr><td>${u.date_approximate ? '≈ ' : ''}${esc(u.date)}</td><td class="l">${esc(u.subject)}</td>
-    <td class="l">${esc(KIND[u.kind] || u.kind)}</td><td>${esc(u.mandate_expires || '—')}</td><td>${esc(u.current_resolution)}</td></tr>`).join('') +
-  '</tbody>';
+/* cols: [header, width%, class]；class 含 opt 的列在手机上隐藏。宽度按每张表的内容分，不让表格平均摊开。 */
+function table(id, cols, rows) {
+  document.getElementById(id).innerHTML =
+    `<colgroup>${cols.map(([, w, c]) => `<col class="${c || ''}" style="width:${w}%">`).join('')}</colgroup>` +
+    `<thead><tr>${cols.map(([h, , c]) => `<th class="${c || ''}">${h}</th>`).join('')}</tr></thead>` +
+    `<tbody>${rows.map((r) => `<tr>${r.map((x, k) => `<td class="${cols[k][2] || ''}">${x}</td>`).join('')}</tr>`).join('')}</tbody>`;
+}
+
+table('up', [[L('Date', '日期'), 17, 'num'], [L('Item', '事项'), 37], [L('Type', '类型'), 15, 'opt'],
+             [L('Mandate expires', '授权到期'), 15, 'num'], [L('Current resolution', '现行决议'), 16, 'num opt']],
+  D.upcoming.map((u) => [(u.date_approximate ? '≈ ' : '') + esc(u.date), esc(u.subject), esc(KIND[u.kind] || u.kind),
+                         esc(u.mandate_expires || '—'), esc(u.current_resolution)]));
 
 const fc = D.forecasts || [];
 const nonYes = (votes) => {
   const g = { N: [], A: [] };
   Object.entries(votes).forEach(([c, x]) => { if (g[x]) g[x].push(c); });
-  return [g.N.length ? L('Against: ', '反对：') + names(g.N) : '', g.A.length ? L('Abstain: ', '弃权：') + names(g.A) : '']
+  return [g.N.length ? L('Against: ', '反对：') + esc(names(g.N)) : '', g.A.length ? L('Abstain: ', '弃权：') + esc(names(g.A)) : '']
     .filter(Boolean).join('<br>') || L('All in favour', '全部赞成');
 };
-const res = (o) => `<span class="badge ${BADGE[o.outcome]}">${esc(OUT[o.outcome] || o.outcome)}</span> ${o.tally.join('–')}`;
+const res = (o) => `<span class="badge ${BADGE[o.outcome]}">${esc(OUT[o.outcome] || o.outcome)}</span> <span class="num">${o.tally.join('–')}</span>`;
 if (!fc.length) document.getElementById('fc-card').hidden = true;
-document.getElementById('fc').innerHTML =
-  `<thead><tr><th>${L('Vote date', '表决日')}</th><th class="l">${L('Item', '事项')}</th><th class="l">${L('Forecast', '预测')}</th>
-   <th class="wrap">${L('Forecast: not in favour', '预测：未投赞成')}</th><th class="l">${L('Actual', '实际')}</th>
-   <th>${L('Members right', '逐国猜对')}</th><th>${L('Made at (UTC)', '预测时间 (UTC)')}</th></tr></thead><tbody>` +
-  fc.map((f) => `<tr><td>${esc(f.date)}</td><td class="l">${esc(f.subject)}</td><td class="l">${res(f.predicted)}</td>
-    <td class="wrap">${nonYes(f.predicted.votes)}</td>
-    <td class="l">${f.actual ? res(f.actual) : L('awaiting record', '等待记录')}</td>
-    <td>${f.vote_accuracy == null ? '—' : Math.round(f.vote_accuracy * 100) + '%'}</td>
-    <td>${esc((f.generated_at || '').replace('T', ' ').slice(0, 16))}</td></tr>`).join('') + '</tbody>';
+table('fc', [[L('Vote date', '表决日'), 10, 'num opt'], [L('Item', '事项'), 19], [L('Forecast', '预测'), 13],
+             [L('Forecast: not in favour', '预测：未投赞成'), 22, 'opt'], [L('Actual', '实际'), 13], [L('Members right', '逐国猜对'), 9, 'num opt'],
+             [L('Made at (UTC)', '预测时间 (UTC)'), 14, 'num opt']],
+  fc.map((f) => [esc(f.date), esc(f.subject) + `<span class="ph">${esc(f.date)}</span>`, res(f.predicted), nonYes(f.predicted.votes),
+                 f.actual ? res(f.actual) : L('awaiting record', '等待记录'),
+                 f.vote_accuracy == null ? '—' : Math.round(f.vote_accuracy * 100) + '%',
+                 esc((f.generated_at || '').replace('T', ' ').slice(0, 16))]));
 
-document.getElementById('votes').innerHTML =
-  `<thead><tr><th>${L('Date', '日期')}</th><th class="l">${L('Agenda', '议程')}</th><th class="l">${L('Document', '文件')}</th>
-   <th class="l">${L('Outcome', '结果')}</th><th>${L('For–Against–Abst.', '赞成–反对–弃权')}</th>
-   <th class="wrap">${L('Against / abstaining', '反对 / 弃权')}</th></tr></thead><tbody>` +
-  D.votes.map((v) => `<tr><td><a href="${esc(v.links.record)}" target="_blank" rel="noopener">${esc(v.date)}</a></td>
-    <td class="wrap">${esc(v.agenda)}</td>
-    <td class="l">${v.links.document ? `<a href="${esc(v.links.document)}" target="_blank" rel="noopener">${esc(v.document)}</a>` : esc(v.document || '—')}</td>
-    <td class="l"><span class="badge ${BADGE[v.outcome]}">${esc(OUT[v.outcome] || v.outcome)}</span></td>
-    <td>${v.tally.join('–')}</td>
-    <td class="wrap">${v.against.length ? L('Against: ', '反对：') + esc(names(v.against)) : ''}${v.against.length && v.abstaining.length ? '<br>' : ''}${v.abstaining.length ? L('Abstained: ', '弃权：') + esc(names(v.abstaining)) : ''}</td></tr>`).join('') +
-  '</tbody>';
+const link = (href, text) => href ? `<a href="${esc(href)}" target="_blank" rel="noopener">${esc(text)}</a>` : esc(text || '—');
+table('votes', [[L('Date', '日期'), 11, 'num'], [L('Agenda', '议程'), 31], [L('Document', '文件'), 15, 'opt'],
+                [L('Outcome', '结果'), 10], [L('For–Against–Abst.', '赞成–反对–弃权'), 11, 'num opt'], [L('Against / abstaining', '反对 / 弃权'), 22, 'opt']],
+  D.votes.map((v) => [link(v.links.record, v.date), esc(v.agenda), link(v.links.document, v.document),
+                      `<span class="badge ${BADGE[v.outcome]}">${esc(OUT[v.outcome] || v.outcome)}</span><span class="ph">${v.tally.join('–')}</span>`,
+                      v.tally.join('–'),
+                      [v.against.length ? L('Against: ', '反对：') + esc(names(v.against)) : '',
+                       v.abstaining.length ? L('Abstained: ', '弃权：') + esc(names(v.abstaining)) : ''].filter(Boolean).join('<br>')]));
 
-document.getElementById('exp').innerHTML =
-  `<thead><tr><th class="l">${L('Mandate', '授权')}</th><th>${L('Expires', '到期')}</th><th>${L('Set by', '依据')}</th></tr></thead><tbody>` +
-  D.expiries.map((e) => `<tr><td class="l">${esc(e.subject)}</td><td>${esc(e.expires)}</td><td>${esc(e.decision)}</td></tr>`).join('') + '</tbody>';
+table('exp', [[L('Mandate', '授权'), 46], [L('Expires', '到期'), 27, 'num'], [L('Set by', '依据'), 27, 'num']],
+  D.expiries.map((e) => [esc(e.subject), esc(e.expires), esc(e.decision)]));
 
 document.getElementById('news').innerHTML = D.news.map((n) =>
   `<li><span class="meta">${esc(n.date)}${n.source ? ' · ' + esc(n.source) : ''}</span>
