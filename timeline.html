@@ -18,11 +18,11 @@
     Annual output from both bodies, aligned on the <strong>calendar year</strong>. The Assembly
     corpus is stored by session (the Nth session opens in September and runs into the following
     September), so each resolution has been re-dated here using the <strong>adoption date</strong>
-    printed in its own text — which is what makes a year-for-year comparison possible.
+    recorded for it in the Dag Hammarskjöld Library's resolution tables — which is what makes a year-for-year comparison possible.
     Drag the slider below to zoom any stretch; all three panels move together.
   </p>
   <p class="lede" data-l="zh">
-    两个机构的年度产出，按<strong>日历年</strong>对齐。大会语料库按届会存储（第 N 届会议于 9 月开幕，持续到次年 9 月），因此这里依据每项决议正文中印有的<strong>通过日期</strong>重新定年——正是这一点使逐年比较成为可能。拖动下方滑块可放大任一时段，三个面板同步移动。</p>
+    两个机构的年度产出，按<strong>日历年</strong>对齐。大会语料库按届会存储（第 N 届会议于 9 月开幕，持续到次年 9 月），因此这里依据达格·哈马舍尔德图书馆决议表记载的<strong>通过日期</strong>重新定年——正是这一点使逐年比较成为可能。拖动下方滑块可放大任一时段，三个面板同步移动。</p>
 
   <div class="tiles" id="tiles"></div>
 
@@ -57,19 +57,9 @@
     <div id="main-table"></div>
   </div>
 
-  <div class="callout critical" data-l="zh">
-    <strong>1980 至 1992 年间的大会数据不能解读。</strong>
-    这一时段有 7 届会议的语料库覆盖率仅为 13.4%–44%（1991 年最低，为 13.4%），另有 5 届（1980–82、1984、1986）在 59.9% 到 79.9% 之间。它们以斜线填充的空心柱显示。这些低谷是<strong>收集缺口</strong>，并不代表大会实际产出下降，更不应被解读为冷战后期的某种政治现象。</div>
+  <div class="callout critical" id="gap-note"></div>
   <div class="callout" data-l="zh">
     <strong>1964 年是唯一的例外。</strong>当年覆盖率为 100%，但大会只通过了 2 项决议。围绕《宪章》第十九条（拖欠会费的国家丧失表决权）的争执，使第 19 届会议根本无法表决，会议推迟到 1964 年 12 月 30 日才通过任何决议。这是整个时段中唯一一个语料库完整而产出确实崩塌的年份，因此也是唯一可以作为结论的低谷。</div>
-  <div class="callout critical" data-l="en">
-    <strong>The Assembly line cannot be read between 1980 and 1992.</strong>
-    Seven sessions in that stretch sit at 13.4%–44% corpus coverage (1991 is the worst, at 13.4%),
-    with a further five (1980–82, 1984, 1986) between 59.9% and 79.9%. They are drawn as hatched, hollow bars. These troughs
-    are <strong>collection gaps</strong>, not a decline in the Assembly's real output, and they
-    should certainly not be read as a political phenomenon of the late Cold War.
-  </div>
-
   <div class="callout" data-l="en">
     <strong>1964 is the one exception.</strong> Coverage that year is 100%, yet the Assembly
     adopted just 2 resolutions. The fight over Article 19 of the Charter — the loss of voting
@@ -247,12 +237,12 @@ mountChart(document.getElementById('main-chart'), (c, base, ax) => {
                 `① 安理会通过的决议（每年）· ${fmt(sum(T.sc.adopted))} 个编号全部收录，全程可用`),
         left: 78, top: 162,
         textStyle: { fontSize: 13, fontWeight: 600, color: c.primary } },
-      { text: L('② Assembly resolutions adopted (per year) · dated by the adoption date in the text',
-                '② 大会通过的决议（每年）· 按正文中的通过日期定年'),
+      { text: L('② Assembly resolutions adopted (per year) · dated by the adoption date in the library tables',
+                '② 大会通过的决议（每年）· 按图书馆决议表的通过日期定年'),
         left: 0, top: 312,
         textStyle: { fontSize: 13, fontWeight: 600, color: c.primary } },
-      { text: L('③ Vetoes cast (per year, by permanent member) · read from the vetoed votes; ~80% of the published list held',
-                '③ 否决次数（每年，按常任理事国）· 取自被否决的表决；约收录公布清单的 80%'),
+      { text: L('③ Vetoes cast (per year, by permanent member) · Dag Hammarskjöld Library veto list, per vetoed draft',
+                '③ 否决次数（每年，按常任理事国）· 达格·哈马舍尔德图书馆否决清单，按被否决的草案计'),
         left: 0, top: 508,
         textStyle: { fontSize: 13, fontWeight: 600, color: c.primary } },
     ],
@@ -356,6 +346,23 @@ const gaTotal = T.ga.adopted.reduce((a, b) => a + (b || 0), 0);
 const usable = T.ga.band.filter((b) => b === 'RELIABLE').length;
 const peakI = T.sc.adopted.indexOf(Math.max(...T.sc.adopted.map((v) => v || 0)));
 const vetoTotal = sum(T.sc.vetoes);
+/* 覆盖率不足的年份，从数据里列出，不写死 */
+{
+  const rows = YEARS.map((y, i) => [y, T.ga.coverage_pct[i], T.ga.band[i]]);
+  const un = rows.filter((r) => r[2] === 'UNUSABLE'), dg = rows.filter((r) => r[2] === 'DEGRADED');
+  const worst = un.reduce((a, b) => (b[1] < a[1] ? b : a), un[0]);
+  const yrs = (rs) => rs.map((r) => r[0]).join(L(', ', '、'));
+  const lo = Math.min(...un.map((r) => r[1])), hi = Math.max(...un.map((r) => r[1]));
+  document.getElementById('gap-note').innerHTML = L(
+    `<strong>The Assembly line cannot be read in ${un.length} years.</strong> Corpus coverage is below 50% in ${yrs(un)}
+    (${lo}%–${hi}%; ${worst[0]} is the worst, at ${worst[1]}%), and between 50% and 80% in ${yrs(dg)}. They are drawn as
+    hatched, hollow bars. These troughs are <strong>collection gaps</strong>, not a decline in the Assembly's real output.
+    Coverage is the share of the resolutions the Assembly adopted that year — counted from the Dag Hammarskjöld Library's
+    resolution tables — that the corpus holds.`,
+    `<strong>有 ${un.length} 个年份的大会数据不能解读。</strong>${yrs(un)} 年的语料库覆盖率低于 50%（${lo}%–${hi}%，${worst[0]} 年最低，为 ${worst[1]}%），
+    ${yrs(dg)} 年在 50% 到 80% 之间。它们以斜线填充的空心柱显示。这些低谷是<strong>收集缺口</strong>，并不代表大会实际产出下降。
+    覆盖率是指当年大会实际通过的决议（按达格·哈马舍尔德图书馆的决议表计）中，语料库收录了多少。`);
+}
 document.getElementById('tiles').innerHTML = `
   <div class="tile"><div class="k">${L('Council resolutions', '安理会决议')}</div><div class="v">${fmt(scTotal)}</div>
     <div class="s">${L(`1946–${END} · every S/RES number held`, `1946–${END} · 收录全部 S/RES 编号`)}</div></div>

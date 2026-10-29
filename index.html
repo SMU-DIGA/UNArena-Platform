@@ -805,7 +805,8 @@ function voteBlock(d) {
       （赞成–反对–弃权），但该记录${esc(SUSPECT_ZH[d.suspect] || d.suspect)}。本站没有任何数字据此计算。</div>`);
   }
   if (!d.has_record) {
-    return `<div class="norec">${L('The corpus holds no vote record for this resolution, so no tally is shown.', '语料库中没有这项决议的表决记录，因此不显示计票。')}</div>`;
+    return `<div class="norec">${d.without_vote ? L('Adopted without a vote.', '未经表决通过。')
+      : L('No vote record for this resolution, so no tally is shown.', '这项决议没有表决记录，因此不显示计票。')}</div>`;
   }
   const names = (label, list) => list.length
     ? `<div class="names"><b>${label}:</b> ${list.map(esc).join(L(', ', '、'))}</div>` : '';

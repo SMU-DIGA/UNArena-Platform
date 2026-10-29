@@ -120,23 +120,24 @@
 
   <!-- ================================================= Security Council == -->
   <div class="sechead"><span class="no" data-zh="第一部分">Part 1</span><h2 data-zh="安全理事会">Security Council</h2>
-    <span class="s" data-end data-zh="3,000 余次记录在案的表决，1946–2025，含未通过的草案">3,000+ recorded votes, 1946–2025, failed drafts included</span></div>
+    <span class="s" id="sc-span" data-zh="记录在案的表决，含未通过的草案">recorded votes, failed drafts included</span></div>
 
   <div class="card" id="veto-card">
     <header>
       <div class="kicker" data-zh="分析 1 · 否决权">Analysis 1 · the veto</div>
       <h2 data-zh="谁在何时行使否决权——以及语料库收录了多少公布记录">Who vetoed, when — and how much of the published record the corpus holds</h2>
-      <p data-zh="否决是指常任理事国对一项原本已获得所需多数的草案投反对票；程序性表决不能被否决。语料库现在从表决轮次中读取否决，被否决的草案即使从未获得 S/RES 编号，也保存在这些轮次中。左图将每个成员的次数与公布的参考数据对比；右图把同样的否决按时间展开。<strong>点击任一年份</strong>，可在下方列出当年被否决的表决。">A veto is a permanent member's vote against a draft that otherwise had the required
-      majority; procedural votes cannot be vetoed. The corpus now reads vetoes from its voting
-      rounds, where the vetoed drafts sit even though they never received an S/RES number. The
-      left panel sets each member's count against the published reference; the right panel spreads
-      the same casts over time. <strong>Click any year</strong> to list its vetoed votes below.</p>
+      <p data-zh="否决是指常任理事国对一项原本已获得所需多数的草案投反对票；程序性表决不能被否决。否决次数取自达格·哈马舍尔德图书馆的官方否决清单，按草案、按投否决票的常任理事国计。左图对比每个成员在官方清单上的次数与语料库收录了其中多少次；右图把官方清单按年份展开。<strong>点击任一年份</strong>，可在下方列出当年的否决，并标出语料库是否收录了那次表决。">A veto is a permanent member's vote against a draft that otherwise had the required
+      majority; procedural votes cannot be vetoed. Vetoes are counted from the Dag Hammarskjöld
+      Library's veto list, once per vetoed draft and per permanent member casting it. The left panel
+      sets each member's count on that list against how many of those votes the corpus holds; the
+      right panel spreads the list over time. <strong>Click any year</strong> to list its vetoes below,
+      with whether the corpus holds the vote.</p>
       <div class="find" id="veto-find"></div>
     </header>
     <div class="split">
       <div>
         <p class="panel-t" data-zh="否决次数：语料库与公布记录对比">Vetoes cast, corpus against the published record</p>
-        <p class="panel-s" data-zh="实心柱：语料库收录 · 浅色框：公布的参考数据，截至 2025 年 12 月 31 日；此后的否决取自逐字记录">Solid bar: in the corpus · pale frame: published reference to 31 Dec 2025, later vetoes from the verbatim records</p>
+        <p class="panel-s" data-zh="实心柱：语料库收录 · 浅色框：官方否决清单">Solid bar: held in the corpus · pale frame: the official veto list</p>
         <div id="veto-cmp" class="chart" style="height:318px"></div>
       </div>
       <div>
@@ -215,8 +216,8 @@
     <header>
       <div class="kicker" data-zh="分析 4 · 产出与覆盖率">Analysis 4 · output and coverage</div>
       <h2 data-zh="大会每届通过了什么——以及哪些地方记录太少，无法解读">What the Assembly adopted each session — and where the record is too thin to read</h2>
-      <p data-zh="每根柱后面的框是该届会议的预期产出，取自其决议编号；柱本身是语料库收录的数量。实心柱表示覆盖率达到 80% 及以上的届会。<strong>斜线柱不能视为趋势</strong>：柱与框之间的差距是收集缺口，而不是平静的一年。下方面板是覆盖率本身，每个点按等级着色。">The frame behind each bar is the session's expected output, taken from its resolution
-      numbering; the bar is what the corpus holds. Solid bars are sessions at 80% coverage or
+      <p data-zh="每根柱后面的框是该届会议实际通过的决议数，取自达格·哈马舍尔德图书馆的决议表；柱本身是语料库收录的数量。实心柱表示覆盖率达到 80% 及以上的届会。<strong>斜线柱不能视为趋势</strong>：柱与框之间的差距是收集缺口，而不是平静的一年。下方面板是覆盖率本身，每个点按等级着色。">The frame behind each bar is the number of resolutions the session actually adopted, from the Dag Hammarskjöld Library's
+      resolution tables; the bar is what the corpus holds. Solid bars are sessions at 80% coverage or
       better. <strong>Hatched bars are not a trend</strong>: the gap between bar and frame is a
       collection gap, not a quiet year. The lower panel is the coverage itself, each point
       marked by its band.</p>
@@ -225,12 +226,12 @@
     <div class="legend">
       <span class="item"><span class="swatch" style="background:var(--series-2)"></span><span data-zh="语料库收录（覆盖率 ≥ 80%）">In the corpus (coverage ≥ 80%)</span></span>
       <span class="item"><span class="swatch hatch"></span><span data-zh="语料库收录（覆盖率 &lt; 80%）">In the corpus (coverage &lt; 80%)</span></span>
-      <span class="item"><span class="swatch" style="border:1.5px solid var(--text-muted)"></span><span data-zh="按编号推算的预期数">Expected from the numbering</span></span>
+      <span class="item"><span class="swatch" style="border:1.5px solid var(--text-muted)"></span><span data-zh="实际通过（图书馆决议表）">Adopted (library tables)</span></span>
     </div>
     <div id="ga-chart" class="chart" style="height:520px"></div>
     <div class="figmeta">
       <span><b data-zh="基数">Base</b> <span id="ga-n"></span></span>
-      <span data-zh="<b>预期数</b> 第 1–30 届累计编号（跨度为下限）；自第 31 届起按届编号"><b>Expected</b> sessions 1–30 numbered cumulatively (span is a lower bound); from 31 per session</span>
+      <span data-zh="<b>实际通过</b> 达格·哈马舍尔德图书馆各届决议表中的不同决议号数；自第 31 届起每届从 1 编号，也不少于其中最大的号"><b>Adopted</b> distinct resolution numbers in the Dag Hammarskjöld Library's session tables; from session 31, numbered per session, never fewer than the highest number</span>
       <span data-zh="<b>点击</b>任一柱可打开当年的记录"><b>Click</b> a bar to open that year's records</span>
     </div>
     <div id="ga-table"></div>
@@ -330,6 +331,9 @@ const tipFoot = (t, c) => `<div style="color:${c.muted};font-size:11.5px;margin-
 { const g = A.ga_sessions, n = g.length, y = g[n - 1].year;
   document.getElementById('ga-span').textContent = L(`${n} sessions, 1946–${y} · coverage bands on every series`, `${n} 届会议，1946–${y} · 每个序列均标注覆盖率等级`); }
 
+{ const oT = A.outcomes.total, n = oT.adopted + oT.vetoed + oT.failed;
+  document.getElementById('sc-span').textContent = L(`${fmt(n)} recorded votes in the corpus, 1946–${END}, failed drafts included`, `语料库中 ${fmt(n)} 次记录在案的表决，1946–${END}，含未通过的草案`); }
+
 /* ----------------------------------------------------------------- tiles */
 const vCorpus = sum(P5.map((s) => V.corpus[s]));
 const vRef = sum(P5.map((s) => V.reference[s]));
@@ -337,7 +341,7 @@ const dT = A.drafts.total, dN = sum(Object.values(dT));
 const gaHave = sum(A.ga_sessions.map((s) => s.have)), gaExp = sum(A.ga_sessions.map((s) => s.expected));
 document.getElementById('tiles').innerHTML = `
   <div class="tile"><div class="k">${L('Vetoes cast in the corpus', '语料库中的否决次数')}</div><div class="v">${fmt(vCorpus)}</div>
-    <div class="s">${L(`published record: ${fmt(vRef)}${END > 2025 ? ', later years from the records' : ' to the end of 2025'}`, `公布记录：${fmt(vRef)} 次${END > 2025 ? '，2025 年以后取自逐字记录' : '，截至 2025 年底'}`)}</div></div>
+    <div class="s">${L(`of ${fmt(vRef)} on the official veto list`, `官方否决清单共 ${fmt(vRef)} 次`)}</div></div>
   <div class="tile"><div class="k">${L('Vetoed drafts held', '收录的被否决草案')}</div><div class="v">${Math.round(100 * V.drafts_held / V.drafts_reference)}%</div>
     <div class="s">${L(`${fmt(V.drafts_held)} of the ${fmt(V.drafts_reference)} on the published list`, `公布清单 ${fmt(V.drafts_reference)} 项中的 ${fmt(V.drafts_held)} 项`)}</div></div>
   <div class="tile"><div class="k">${L('Council texts voted down', '安理会被否决或未通过的文本')}</div><div class="v">${fmt(A.outcomes.total.vetoed + A.outcomes.total.failed)}</div>
@@ -357,12 +361,14 @@ const refOrder = [...P5].sort((a, b) => V.reference[b] - V.reference[a]);
     const top = P5.slice().sort((x, y) => per[y] - per[x])[0];
     return { a, b, tot, top, n: per[top] };
   });
+  const heldPct = Math.round(100 * V.drafts_held / V.drafts_reference);
+  const dHeld = V.drafts_by_decade, recentHeld = sum(dHeld.slice(5).map((x) => x[1])), recentRef = sum(dHeld.slice(5).map((x) => x[0]));
   document.getElementById('veto-find').innerHTML = LANG === 'zh'
-    ? `<b>语料库总数与公布记录相差不超过 ${Math.abs(vCorpus - vRef)}：${fmt(vCorpus)} 次对 ${fmt(vRef)} 次</b>（${diff}）。误差是双向的——少数美国否决随其所在会议一起缺失，而中国和法国各比参考数据多出几次，原因尚未查明。否决权的主要使用者随时间变化：${decs[0].a}–${decs[0].b} 年的 ${decs[0].tot} 次中有 ${decs[0].n} 次来自${LAB[decs[0].top]}；${decs[1].a}–${decs[1].b} 年仅有 ${decs[1].tot} 次，大多来自${LAB[decs[1].top]}；${decs[2].a} 年以来共 ${decs[2].tot} 次，其中 ${decs[2].n} 次来自${LAB[decs[2].top]}。否决最多的单一年份是 ${peak[0]} 年，共 ${peak[1]} 次。`
-    : `<b>The corpus total is within ${Math.abs(vCorpus - vRef)} of the published record:
-    ${fmt(vCorpus)} casts against ${fmt(vRef)}</b> (${diff}). The residuals run both ways — a few
-    American casts are missing along with their meetings, while China and France each show a
-    handful more than the reference, which is not yet resolved. Over time the veto changes hands:
+    ? `<b>官方清单上共 ${fmt(vRef)} 次否决，语料库收录了其中 ${fmt(vCorpus)} 次</b>（${fmt(V.drafts_held)} / ${fmt(V.drafts_reference)} 份被否决的草案，${heldPct}%）。缺的大多在 1990 年以前：那些会议没有通过任何决议，语料库没有收录；1990 年以来收录了 ${fmt(recentHeld)} / ${fmt(recentRef)} 份。否决权的主要使用者随时间变化：${decs[0].a}–${decs[0].b} 年的 ${decs[0].tot} 次中有 ${decs[0].n} 次来自${LAB[decs[0].top]}；${decs[1].a}–${decs[1].b} 年仅有 ${decs[1].tot} 次，大多来自${LAB[decs[1].top]}；${decs[2].a} 年以来共 ${decs[2].tot} 次，其中 ${decs[2].n} 次来自${LAB[decs[2].top]}。否决最多的单一年份是 ${peak[0]} 年，共 ${peak[1]} 次。`
+    : `<b>The official list counts ${fmt(vRef)} vetoes; the corpus holds ${fmt(vCorpus)} of them</b>
+    (${fmt(V.drafts_held)} of ${fmt(V.drafts_reference)} vetoed drafts, ${heldPct}%). Most of the gap is before 1990, at
+    meetings that adopted no resolution and so were never collected; since 1990 the corpus holds ${fmt(recentHeld)}
+    of ${fmt(recentRef)}. Over time the veto changes hands:
     in ${decs[0].a}–${decs[0].b} ${decs[0].n} of ${decs[0].tot} casts came from ${LAB[decs[0].top]};
     in ${decs[1].a}–${decs[1].b} there were only ${decs[1].tot}, mostly from ${LAB[decs[1].top]};
     since ${decs[2].a} there have been ${decs[2].tot}, ${decs[2].n} of them from ${LAB[decs[2].top]}.
@@ -370,7 +376,7 @@ const refOrder = [...P5].sort((a, b) => V.reference[b] - V.reference[a]);
   document.getElementById('veto-meta').innerHTML = L(`
     <span><b>Reference</b> ${esc(V.reference_note)}</span>
     <span><b>Missing</b> ${fmt(V.drafts_reference - V.drafts_held)} vetoed drafts, mostly at meetings the corpus does not hold</span>`, `
-    <span><b>参考</b> 达格·哈马舍尔德图书馆否决清单，以及英国外交部 1946–2015 年被否决草案表；按常任理事国、按每次被否决的表决统计，截至 2025 年 12 月 31 日；此后的否决取自逐字记录。</span>
+    <span><b>参考</b> 达格·哈马舍尔德图书馆否决清单（research.un.org），按草案、按投否决票的常任理事国计。</span>
     <span><b>缺失</b> ${fmt(V.drafts_reference - V.drafts_held)} 项被否决的草案，大多出自语料库未收录的会议</span>`);
 }
 
@@ -443,11 +449,13 @@ function drawLog() {
         ? L(' · click the year again to clear', ' · 再次点击该年份可取消') : L(' · click a year in the chart', ' · 点击图中的年份')}</span></div>
     <div class="rows">${ev.length ? ev.map((e) => `
       <div class="r"><span class="d">${esc(e.d)}</span>
-        <span class="doc"><a href="browse.html?y=${y}&q=${encodeURIComponent(e.m)}">${esc(e.doc || L('draft (symbol not recorded)', '草案（未记录文号）'))}</a>
-          <span class="k">${L(`meeting ${esc(e.m)}`, `第 ${esc(e.m)} 次会议`)}${e.k === 'amendment' ? L(' · amendment / separate vote', ' · 修正案 / 分别表决') : ''}</span></span>
+        <span class="doc">${e.held ? `<a href="browse.html?y=${y}&q=${encodeURIComponent(e.m)}">${esc(e.doc || L('draft (symbol not recorded)', '草案（未记录文号）'))}</a>`
+          : esc(e.doc || L('draft (symbol not recorded)', '草案（未记录文号）'))}
+          <span class="k">${L(`meeting ${esc(e.m)}`, `第 ${esc(e.m)} 次会议`)}${e.k === 'amendment' ? L(' · amendment / separate vote', ' · 修正案 / 分别表决') : ''}${
+            e.held ? '' : L(' · not in the corpus', ' · 语料库未收录')}</span></span>
         <span>${e.who.map((s) => `<span class="chip"><i style="background:${slot(c, s)}"></i>${SHORT[s]}</span>`).join('')}
-          <span class="t">${e.t.join('–')}</span></span></div>`).join('')
-      : `<div class="r"><span></span><span style="color:var(--text-muted)">${L('No vetoed vote in the corpus this year.', '语料库中当年没有被否决的表决。')}</span><span></span></div>`}
+          <span class="t">${e.t ? e.t.join('–') : '—'}</span></span></div>`).join('')
+      : `<div class="r"><span></span><span style="color:var(--text-muted)">${L('No veto this year.', '当年没有否决。')}</span><span></span></div>`}
     </div>`;
 }
 REGISTRY.push(drawLog);
@@ -717,7 +725,7 @@ const gaC = mount(document.getElementById('ga-chart'), (c, base, ax) => {
         const s = GS[ps[0].dataIndex];
         return tipHead(L(`Session ${s.session} · opened ${s.year}`, `第 ${s.session} 届 · ${s.year} 年开幕`))
           + tipRow(null, L('Resolutions in the corpus', '语料库中的决议'), fmt(s.have))
-          + tipRow(null, L('Expected from the numbering', '按编号推算的预期数'), fmt(s.expected))
+          + tipRow(null, L('Adopted (library tables)', '实际通过（图书馆决议表）'), fmt(s.expected))
           + tipRow(bandCol[s.band], L('Coverage', '覆盖率'), pct(s.pct))
           + (s.meetings ? tipRow(null, L('Plenary meetings that adopted', '通过决议的全体会议'), L(`${s.meetings} of ~${s.span}`, `约 ${s.span} 次中的 ${s.meetings} 次`)) : '')
           + tipFoot(bandLab[s.band] + L(' · click to open the records', ' · 点击打开记录'), c);
@@ -887,12 +895,12 @@ tableView(document.getElementById('p5-table').appendChild(document.createElement
     return [LAB[s], `${fmt(d.Y)} (${pct(100 * d.Y / n)})`, `${fmt(d.N)} (${pct(100 * d.N / n)})`, `${fmt(d.A)} (${pct(100 * d.A / n)})`]; }),
   L('Show how each permanent member voted overall', '显示各常任理事国的总体投票情况'));
 
-document.getElementById('built-note').innerHTML = LANG === 'zh'
-  ? `于 ${esc(A.built)} 由 <code>_site\\build_analysis.py</code> 根据 <code>RES_Security</code> 和 <code>RES_General</code> 生成（在 <code>_report\\census.py</code> 与 <code>coverage.py</code> 之后运行）。本页此前展示的四张静态图绘制于 2026 年 7 月，早于安理会草案和更正后的否决记录进入语料库，现已被取代。`
-  : `Built ${esc(A.built)} from <code>RES_Security</code> and <code>RES_General</code> by
-  <code>_site\\build_analysis.py</code> (after <code>_report\\census.py</code> and <code>coverage.py</code>).
-  The four static figures this page used to show were drawn in July 2026, before the Council drafts
-  and the corrected veto record entered the corpus; they are superseded.`;
+document.getElementById('built-note').innerHTML = L(
+  `Built ${esc(A.built)}. Counts from the corpus come from the corrected meeting records (<code>RES_Security</code>,
+  <code>RES_General</code>); vetoes, Council vote tallies and the number of resolutions each Assembly session and year
+  actually adopted come from the Dag Hammarskjöld Library's research guides (research.un.org): the veto list, the Security
+  Council meetings and outcomes tables, and the General Assembly resolution tables.`,
+  `生成于 ${esc(A.built)}。语料库的计数取自订正后的会议记录（<code>RES_Security</code>、<code>RES_General</code>）；否决、安理会各项决议的票数，以及大会每届、每年实际通过的决议数，取自达格·哈马舍尔德图书馆的研究指南（research.un.org）：否决清单、安理会会议与结果表、大会决议表。`);
 </script>
 </body>
 </html>
