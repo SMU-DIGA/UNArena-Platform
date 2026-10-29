@@ -58,17 +58,18 @@ const catname = (c) => (ZH.categories && ZH.categories[c]) || c;
 })();
 
 /* The labels are the short form; each page's own <h1> carries the full name.
-   The timeline story is the landing page now, so it has no tab of its own. */
-const PAGES = [
+   Four tabs on the bar. A group tab opens its first page; the pages of a group
+   are switched with a row of links above the page title (subNav), not a
+   dropdown, because on phones the bar scrolls sideways and would clip one. */
+const NAV = [
   ['index.html', 'Timeline', '时间线'],
-  ['geo.html', 'Map', '地图'],
-  ['entries.html', 'Entries', '专题'],
-  ['browse.html', 'Records', '会议记录'],
-  ['timeline.html', 'Charts', '年度图表'],
-  ['topics.html', 'Topics', '议题'],
-  ['assessment.html', 'Analysis', '分析'],
+  ['Entries', '专题', [['entries.html', 'All entries', '专题条目'], ['topics.html', 'Topic categories', '议题类别'],
+                      ['geo.html', 'Map', '地图']]],
+  ['Data', '数据', [['browse.html', 'Records', '会议记录'], ['timeline.html', 'Charts by year', '年度图表'],
+                   ['assessment.html', 'Analysis', '分析']]],
   ['live.html', 'Live', '实时'],
 ];
+const PAGES = NAV.flatMap((n) => (Array.isArray(n[2]) ? n[2] : [n]));
 
 /* Detail views are reached from a listing rather than the bar, so they are not
    tabs — but they should still light the tab they belong under. */
@@ -195,9 +196,12 @@ function otherLangHref() {
 function initChrome() {
   let here = location.pathname.split('/').pop() || 'index.html';
   here = NAV_ALIAS[here] || here;
-  const tabs = PAGES.map(([href, en, zh]) =>
-    `<a class="tab" href="${href}"${href === here ? ' aria-current="page"' : ''}>${L(en, zh)}</a>`
-  ).join('');
+  const group = NAV.find((n) => Array.isArray(n[2]) && n[2].some(([h]) => h === here));
+  const tabs = NAV.map((n) => {
+    const [href, en, zh] = Array.isArray(n[2]) ? [n[2][0][0], n[0], n[1]] : n;
+    const on = n === group || href === here;
+    return `<a class="tab" href="${href}"${on ? ' aria-current="page"' : ''}>${L(en, zh)}</a>`;
+  }).join('');
 
   /* Inserted first so it sits under everything, including the landing page's
      own per-era wash, which is a second fixed layer on top of this one. */
@@ -209,13 +213,20 @@ function initChrome() {
     <header class="site"><nav class="nav" aria-label="${L('Site', '网站导航')}">
       <a class="brand" href="index.html">${GLOBE}
         UNArena Platform</a>
-      <div class="tabs">${tabs}</div><div class="spacer"></div>
+      <div class="spacer"></div><div class="tabs">${tabs}</div>
       <a class="langlink" href="${esc(otherLangHref())}"
         ${LANG === 'zh' ? 'hreflang="en" lang="en">EN' : 'hreflang="zh-CN" lang="zh-CN">中文'}</a>
       <button class="themebtn" id="theme-btn" type="button"
         aria-label="${L('Toggle light or dark theme', '切换浅色或深色主题')}"
         title="${L('Toggle light or dark theme', '切换浅色或深色主题')}">${CONTRAST}</button>
     </nav></header>`);
+
+  const main = document.querySelector('main');
+  if (group && main) {
+    main.insertAdjacentHTML('afterbegin', `<nav class="seg subnav" aria-label="${L(group[0], group[1])}">` +
+      group[2].map(([href, en, zh]) =>
+        `<a href="${href}"${href === here ? ' aria-current="page"' : ''}>${L(en, zh)}</a>`).join('') + '</nav>');
+  }
 
   document.getElementById('theme-btn').onclick = toggleTheme;
   /* boot.js has already applied a stored or ?theme= choice; the charts drawn

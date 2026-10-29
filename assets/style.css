@@ -234,8 +234,21 @@ header.site {
   color: var(--hdr-on-fg);
   font-weight: 600;
 }
-.nav .tabs { display: flex; align-items: center; gap: 2px; min-width: 0; }
+.nav .tabs { display: flex; align-items: center; gap: 2px; min-width: 0; margin-right: 14px; }
 .nav .spacer { flex: 1; min-width: 12px; }
+
+/* Pages of one tab group (see NAV in common.js): a segmented row above the title. */
+.subnav { display: flex; width: max-content; margin-bottom: 18px; }
+.subnav a {
+  flex: none; padding: 6px 14px; font-size: 13.5px; color: var(--text-secondary);
+  background: var(--surface-1); text-decoration: none; white-space: nowrap;
+}
+.subnav a + a { border-left: 1px solid var(--border); }
+.subnav a:hover { color: var(--text-primary); }
+.subnav a[aria-current="page"] {
+  background: color-mix(in srgb, var(--series-1) 15%, transparent);
+  color: var(--series-1); font-weight: 600;
+}
 
 /* The two switches on the bar, after the reference site: a small bordered
    link naming the other language, and one square button with a half-filled
@@ -541,7 +554,7 @@ a.ecard .body .w { font-size: 11.5px; color: var(--text-muted); margin-top: 8px;
    row that scrolls sideways, so the switches are never pushed off-screen. */
 @media (max-width: 720px) {
   .nav { flex-wrap: wrap; height: auto; padding: 8px 16px 3px; row-gap: 4px; }
-  .nav .tabs { order: 3; flex: 1 0 100%; overflow-x: auto; scrollbar-width: none; padding-bottom: 6px; }
+  .nav .tabs { order: 3; flex: 1 0 100%; overflow-x: auto; scrollbar-width: none; padding-bottom: 6px; margin-right: 0; }
   .nav .tabs::-webkit-scrollbar { display: none; }
   .brand { margin-right: 8px; }
   .brand .full { display: none; }
