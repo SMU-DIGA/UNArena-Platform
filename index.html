@@ -44,14 +44,19 @@ main.story { max-width: none; margin: 0; padding: 0; position: relative; z-index
 /* 28ch, not less: the headline is written as two deliberate lines and the
    first is 26 characters, so a narrower measure breaks "voting," onto a line
    of its own. */
+/* The headline is two deliberate lines, and the first ("Eighty years of UN
+   voting,") is about 11.8 em wide in Fraunces 800: the size is set from the
+   width of the column it sits in (a container unit), so that line never
+   breaks. Beside the photograph the text column is 1.6/2.6 of the row. */
+.open { container-type: inline-size; }
 .open h1 {
-  font-size: clamp(38px, 5.4vw, 80px); font-weight: 800;
+  font-size: min(80px, 7.8cqi); font-weight: 800;
   line-height: 1.0; letter-spacing: -.028em; margin: 0 0 28px; max-width: 28ch;
 }
 .open h1 em { font-style: italic; font-weight: 500; color: var(--series-1); }
 html[lang="zh-CN"] .open h1 em { font-style: normal; }
 /* Chinese glyphs are square and wide: at the Latin size the first line breaks before its last two characters. */
-html[lang="zh-CN"] .open h1 { font-size: clamp(34px, 4.4vw, 64px); line-height: 1.15; }
+html[lang="zh-CN"] .open h1 { font-size: min(64px, 9.6cqi); line-height: 1.15; }
 .open .eyebrow { color: var(--series-1); font-weight: 600; }
 .open p { font-family: var(--serif); }
 
@@ -70,6 +75,8 @@ html[lang="zh-CN"] .open h1 { font-size: clamp(34px, 4.4vw, 64px); line-height: 
   :root:where(:not([data-theme="light"])) .heroshot img { mix-blend-mode: screen; opacity: .9; }
 }
 @media (min-width: 901px) {
+  .open h1 { font-size: min(80px, calc((100cqi - 52px) * 0.0485)); }
+  html[lang="zh-CN"] .open h1 { font-size: min(64px, calc((100cqi - 52px) * 0.058)); }
   .open { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); column-gap: 52px; align-content: center; }
   .open > * { grid-column: 1; }
   .open > .heroshot { grid-column: 2; grid-row: 1 / span 4; align-self: center; }
