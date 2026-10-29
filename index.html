@@ -133,6 +133,15 @@ html.js .open.go .rise:nth-child(6) { transition-delay: .54s }
 .eranav a.cur { color: var(--text-primary); font-weight: 600; }
 .eranav a.cur .dash { width: 30px; background: var(--era, var(--series-1)); }
 .eranav a.cur .lbl { opacity: 1; }
+/* The labels sit in the left margin. When the margin is narrower than a label (below ~1680px, with the
+   1240px content column), show only the dashes; on hover the labels appear on a chip of their own so they
+   never mix with the body text. */
+@media (max-width: 1679px) {
+  .eranav a.cur .lbl { opacity: 0; }
+  .eranav a .lbl { background: var(--surface-1); border: 1px solid var(--border); border-radius: 6px;
+    padding: 2px 8px; box-shadow: 0 4px 14px color-mix(in srgb, var(--text-primary) 10%, transparent); }
+  .eranav:hover a .lbl { opacity: 1; }
+}
 
 /* ---- era sections -------------------------------------------------------- */
 section.era { padding: 96px 24px 40px; }
