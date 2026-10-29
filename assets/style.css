@@ -323,16 +323,12 @@ main { max-width: var(--maxw); margin: 0 auto; padding: 34px 24px 90px; }
 h1 { font-size: 30px; line-height: 1.28; margin: 0 0 10px; letter-spacing: -.01em; }
 h2 { font-size: 20px; margin: 0 0 6px; letter-spacing: -.005em; }
 h3 { font-size: 15px; margin: 0 0 4px; }
-p.lede { color: var(--text-secondary); font-size: 15.5px; margin: 0 0 26px; max-width: 76ch; }
-p.note { color: var(--text-muted); font-size: 13px; margin: 10px 0 0; max-width: 88ch; }
-/* Measures above are in ch, the width of a Latin digit. A Chinese character
-   is about two of those, so on the Chinese pages the same rules would hold
-   half as much text; they get their measure in em (one character) instead,
-   and paragraphs avoid leaving one or two characters alone on the last line. */
-html[lang="zh-CN"] p { text-wrap: pretty; }
-html[lang="zh-CN"] p.lede { max-width: 44em; }
-html[lang="zh-CN"] p.note { max-width: 50em; }
-html[lang="zh-CN"] .card > header p { max-width: 48em; }
+p.lede { color: var(--text-secondary); font-size: 15.5px; margin: 0 0 26px; max-width: none; }
+p.note { color: var(--text-muted); font-size: 13px; margin: 10px 0 0; max-width: none; }
+/* Body text runs the full width of the content column on desktop (the
+   column itself is capped by --maxw); paragraphs avoid leaving one or two
+   characters alone on the last line. */
+p { text-wrap: pretty; }
 html[lang="zh-CN"] .hero h1 { max-width: 16em; }
 
 .card {
@@ -344,7 +340,7 @@ html[lang="zh-CN"] .hero h1 { max-width: 16em; }
   margin-bottom: 22px;
 }
 .card > header { margin-bottom: 14px; }
-.card > header p { margin: 0; color: var(--text-secondary); font-size: 13.5px; max-width: 84ch; }
+.card > header p { margin: 0; color: var(--text-secondary); font-size: 13.5px; max-width: none; }
 
 .chart { width: 100%; height: 420px; }
 .chart.tall { height: 560px; }
