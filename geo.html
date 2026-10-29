@@ -39,6 +39,11 @@
   gap: 20px; align-items: start; }
 .plate > header h2 { font-size: 21px; letter-spacing: -.01em; margin: 0 0 6px; }
 .plate > header p { margin: 0; color: var(--text-secondary); font-size: 13.5px; max-width: 78ch; }
+/* Chinese: measures in em, see the note in style.css */
+html[lang="zh-CN"] .phero h1 { max-width: 15em; }
+html[lang="zh-CN"] .phero p.lede { max-width: 40em; }
+html[lang="zh-CN"] .pnums .l { max-width: 14em; }
+html[lang="zh-CN"] .plate > header p { max-width: 46em; }
 .plate .inset {
   background: var(--plane); border: 1px solid var(--border); border-radius: 12px;
   padding: 6px 4px 2px; overflow: hidden;

@@ -38,6 +38,7 @@
     color: var(--text-secondary); max-width: 92ch;
   }
   .card > header .find b { color: var(--text-primary); }
+  html[lang="zh-CN"] .card > header .find { max-width: 52em; }   /* em for Chinese, see style.css */
 
   .split { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 26px; }
   .split.even { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }

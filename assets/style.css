@@ -325,6 +325,15 @@ h2 { font-size: 20px; margin: 0 0 6px; letter-spacing: -.005em; }
 h3 { font-size: 15px; margin: 0 0 4px; }
 p.lede { color: var(--text-secondary); font-size: 15.5px; margin: 0 0 26px; max-width: 76ch; }
 p.note { color: var(--text-muted); font-size: 13px; margin: 10px 0 0; max-width: 88ch; }
+/* Measures above are in ch, the width of a Latin digit. A Chinese character
+   is about two of those, so on the Chinese pages the same rules would hold
+   half as much text; they get their measure in em (one character) instead,
+   and paragraphs avoid leaving one or two characters alone on the last line. */
+html[lang="zh-CN"] p { text-wrap: pretty; }
+html[lang="zh-CN"] p.lede { max-width: 44em; }
+html[lang="zh-CN"] p.note { max-width: 50em; }
+html[lang="zh-CN"] .card > header p { max-width: 48em; }
+html[lang="zh-CN"] .hero h1 { max-width: 16em; }
 
 .card {
   background: var(--surface-1);
