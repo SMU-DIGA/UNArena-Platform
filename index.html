@@ -79,14 +79,29 @@ main.story { max-width: none; margin: 0; padding: 0; position: relative; z-index
 .open .rise { position: relative; z-index: 1; }
 
 .bignums {
-  display: flex; flex-wrap: wrap; gap: 40px; margin: 34px 0 0;
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 34px 0 0;
+  gap: 1px; background: var(--border);       /* the 1px gaps are the dividers */
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+  box-shadow: 0 6px 24px rgba(0, 40, 70, .06);
 }
+.bignums > div {
+  padding: 18px 18px 20px; min-width: 0; display: flex; flex-direction: column; justify-content: space-between;
+  background: color-mix(in srgb, var(--surface-1) 88%, transparent);
+}
+.bignums .l {
+  display: flex; align-items: center; gap: 9px; font-size: 13.5px; color: var(--text-secondary); line-height: 1.4;
+}
+.bignums .l > span:last-child { text-wrap: balance; }
+.bignums .ib {
+  flex: none; width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center;
+  color: var(--series-1); background: color-mix(in srgb, var(--series-1) 12%, transparent);
+}
+.bignums .ib svg.ic { width: 16px; height: 16px; }
 .bignums .n {
-  font-size: clamp(27px, 3.4vw, 39px); font-weight: 660; letter-spacing: -.03em;
-  line-height: 1.05; font-variant-numeric: tabular-nums;
+  font-size: clamp(28px, 2.8vw, 38px); font-weight: 680; letter-spacing: -.025em; margin-top: 12px;
+  line-height: 1.05; font-variant-numeric: tabular-nums; color: var(--text-primary);
 }
-.bignums .l { font-size: 12.5px; color: var(--text-muted); max-width: 22ch; margin-top: 5px; }
-html[lang="zh-CN"] .bignums .l { max-width: 20em; }
 
 /* Staggered arrival, once, on load. */
 html.js .open .rise { opacity: 0; transform: translateY(18px); }
@@ -376,7 +391,11 @@ section.outro .links a { text-decoration: none; padding: 9px 17px; }
   article.node:nth-of-type(even) .txt { order: 0; }
   article.node:nth-of-type(even) .side { order: 1; }
   .rail-track { height: 34px; }
-  .bignums { gap: 24px; }
+  .bignums { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bignums > div { padding: 14px 14px 16px; }
+  .bignums .l { align-items: flex-start; font-size: 12.5px; gap: 8px; }
+  .bignums .ib { width: 24px; height: 24px; border-radius: 7px; }
+  .bignums .ib svg.ic { width: 14px; height: 14px; }
   .open .field { height: 26%; }
 }
 </style>
@@ -512,13 +531,13 @@ function setEra(idx) {
 /* Count the four headline numbers up on arrival. The value is the fact; the
    count is only how it lands. */
 const HEADLINE = [
-  [P.totals.sc_total + P.totals.ga_total, L('meetings with a vote record, 1946–2025', '次有表决记录的会议，1946–2025')],
-  [17401, L('resolutions and drafts, with their tallies', '项决议与草案，附计票')],
-  [P.totals.meetings, L('meetings carrying a background entry', '次会议挂有背景条目')],
-  [P.totals.topics, L('topic entries, from Palestine to piracy', '个专题条目，从巴勒斯坦到海盗问题')],
+  [P.totals.sc_total + P.totals.ga_total, L('meetings with a vote record, 1946–2025', '次有表决记录的会议，1946–2025'), 'ballot'],
+  [17401, L('resolutions and drafts, with their tallies', '项决议与草案，附计票'), 'file'],
+  [P.totals.meetings, L('meetings carrying a background entry', '次会议挂有背景条目'), 'clock'],
+  [P.totals.topics, L('topic entries, from Palestine to piracy', '个专题条目，从巴勒斯坦到海盗问题'), 'book'],
 ];
-document.getElementById('bignums').innerHTML = HEADLINE.map(([v, l]) =>
-  `<div><div class="n" data-to="${v}">${REDUCED ? fmt(v) : '0'}</div><div class="l">${esc(l)}</div></div>`).join('');
+document.getElementById('bignums').innerHTML = HEADLINE.map(([v, l, ic]) =>
+  `<div><div class="l"><span class="ib">${svg(ic)}</span><span>${esc(l)}</span></div><div class="n" data-to="${v}">${REDUCED ? fmt(v) : '0'}</div></div>`).join('');
 
 function countUp(el) {
   const to = +el.dataset.to;
