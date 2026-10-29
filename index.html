@@ -252,7 +252,7 @@ html.js .era.in a.encard {
 /* ---- milestone nodes ----------------------------------------------------- */
 .nodes { max-width: calc(var(--maxw) - 48px); margin: 0 auto; }
 article.node {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 46px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 46px; align-items: stretch;
   padding: 60px 0; border-bottom: 1px solid var(--rule-soft);
   scroll-margin-top: 90px;
 }
@@ -276,9 +276,16 @@ article.node:nth-of-type(even) .side { order: 1; }
 html[lang="zh-CN"] .node h3 { font-style: normal; font-weight: 600; }
 .node .lede { font-family: var(--serif); font-size: 19px; color: var(--text-primary); margin: 0 0 12px; line-height: 1.5; font-weight: 500; }
 
-/* A milestone's photograph, at full colour, with its credit under it. */
-.node .shotn { margin: 0; }
-.node .shotn .frame { aspect-ratio: 16 / 10; overflow: hidden; background: var(--grid); }
+/* A milestone's photograph, at full colour, with its credit under it. On a
+   wide screen it takes whatever height the text column leaves (flex-basis 0,
+   so the picture never makes the row taller than the text), cropped to fill;
+   on a phone it keeps a fixed shape. */
+.node .shotn { margin: 0; display: flex; flex-direction: column; flex: 1 1 0; min-height: 260px; }
+.node .shotn .frame { flex: 1 1 0; min-height: 0; overflow: hidden; background: var(--grid); }
+@media (max-width: 900px) {
+  .node .shotn { flex: none; min-height: 0; }
+  .node .shotn .frame { flex: none; aspect-ratio: 16 / 10; }
+}
 .node .shotn img, .node .shotn svg { width: 100%; height: 100%; object-fit: cover; display: block; }
 .node .shotn .credit { padding: 5px 0 0; }
 /* Maps and emblems are .png/.svg: show them whole rather than cropped. */
@@ -286,6 +293,8 @@ html[lang="zh-CN"] .node h3 { font-style: normal; font-weight: 600; }
 .node .bodytext { font-size: 14.5px; color: var(--text-secondary); line-height: 1.76; margin: 0 0 18px; }
 
 .node .side { display: flex; flex-direction: column; gap: 13px; justify-content: center; }
+.node .side:has(.shotn) { justify-content: flex-start; }
+.node .extras { display: flex; flex-direction: column; gap: 12px; margin: 4px 0 20px; }
 .statgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
 .statbox {
   background: var(--surface-1);
@@ -677,17 +686,11 @@ document.getElementById('sections').innerHTML = S.eras.map((era, ei) => {
     const st = e.year_stats;
     const covCls = st.ga_band === 'RELIABLE' ? '' : 'flag';
     const live = entriesAtYear(e.year).slice(0, 3);
-    return `
-    <article class="node" id="y${e.year}" data-year="${e.year}" data-era="${era.id}" data-ei="${ei}">
-      <div class="txt">
-        <div class="year">${e.year}</div>
-        <h3>${esc(e.title)}</h3>
-        <p class="lede">${esc(e.lede)}</p>
-        <p class="bodytext">${esc(e.body)}</p>
-        <button class="more" data-y="${e.year}">${L('Detail and vote records →', '详情与表决记录 →')}</button>
-      </div>
-      <div class="side">
-        ${(window.TOPIC_IMAGES || {})[`event:${e.year}`] ? `<figure class="shotn"><div class="frame">${pictureFor(`event:${e.year}`, { title: e.title })}</div>${creditFor(`event:${e.year}`)}</figure>` : ''}
+    const pk = `event:${e.year}`;
+    const hasPic = !!(window.TOPIC_IMAGES || {})[pk];
+    /* With a photograph the picture takes the whole side column and the year's
+       figures move under the text; without one they keep the side column. */
+    const extras = `
         <div class="statgrid">
           <div class="statbox sc"><div class="k">${L('Council resolutions', '安理会决议')}</div>
             <div class="v">${st.sc_adopted ?? '—'}</div></div>
@@ -703,7 +706,19 @@ document.getElementById('sections').innerHTML = S.eras.map((era, ei) => {
           ${st.ga_coverage != null ? st.ga_coverage.toFixed(1) + '%' : '—'}
           (${BAND_LABEL[st.ga_band] || st.ga_band}) — the Assembly figure above does not represent
           its real output.`, `当年大会覆盖率为 ${st.ga_coverage != null ? st.ga_coverage.toFixed(1) + '%' : '—'}
-          （${BAND_LABEL[st.ga_band] || st.ga_band}）——上方的大会数字不代表其实际产出。`)}</div>` : ''}
+          （${BAND_LABEL[st.ga_band] || st.ga_band}）——上方的大会数字不代表其实际产出。`)}</div>` : ''}`;
+    return `
+    <article class="node${hasPic ? ' haspic' : ''}" id="y${e.year}" data-year="${e.year}" data-era="${era.id}" data-ei="${ei}">
+      <div class="txt">
+        <div class="year">${e.year}</div>
+        <h3>${esc(e.title)}</h3>
+        <p class="lede">${esc(e.lede)}</p>
+        <p class="bodytext">${esc(e.body)}</p>
+        ${hasPic ? `<div class="extras">${extras}</div>` : ''}
+        <button class="more" data-y="${e.year}">${L('Detail and vote records →', '详情与表决记录 →')}</button>
+      </div>
+      <div class="side">
+        ${hasPic ? `<figure class="shotn"><div class="frame">${pictureFor(pk, { title: e.title })}</div>${creditFor(pk)}</figure>` : extras}
       </div>
     </article>`;
   }).join('');
