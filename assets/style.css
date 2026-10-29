@@ -6,7 +6,13 @@
    deeper step of UN blue for series 1 (#0077B8) because the pure brand blue
    is only 3:1 on white and series 1 also colours link and control text.
    Dark values are a selected set stepped for the dark surface, not an
-   automatic inversion. */
+   automatic inversion.
+
+   Typography and surfaces follow the editorial direction chosen 2026-10-29:
+   serif display type (Fraunces; Noto Serif SC for Chinese), a pale UN-blue
+   page, white panels, deep-blue rules instead of rounded shadows, and red
+   kept for the one thing it means — a vote against or a veto. */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..600&family=Noto+Serif+SC:wght@500;700&display=swap');
 
 :root {
   color-scheme: light;
@@ -16,13 +22,17 @@
   --hero-end: #00689d;
 
   --surface-1: #ffffff;
-  --plane: #f3f6f9;
+  --plane: #f2f7fb;
   --text-primary: #0d1b2a;
-  --text-secondary: #46566a;
+  --text-secondary: #3f5063;
   --text-muted: #7b8898;
   --grid: #e1e7ee;
   --axis: #bdc8d4;
-  --border: rgba(13, 40, 70, 0.12);
+  --border: rgba(0, 80, 130, 0.16);
+  /* rules: the strong one under headings and on top of panels, the soft one between items */
+  --rule: #00689d;
+  --rule-soft: #c9dcea;
+  --against: #c8102e;
 
   --series-1: #0077b8;
   --series-2: #e06a1f;
@@ -54,6 +64,7 @@
 
   --font: system-ui, -apple-system, "Segoe UI", "PingFang SC", "Hiragino Sans GB",
           "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  --serif: Fraunces, "Noto Serif SC", "Source Han Serif SC", "Songti SC", Georgia, serif;
   --maxw: 1240px;
 }
 
@@ -61,8 +72,11 @@
   :root:where(:not([data-theme="light"])) {
     color-scheme: dark;
     --hero-end: #8ad0f1;
-    --surface-1: #0f1e2c;
-    --plane: #08131d;
+    --surface-1: #0d1d2c;
+    --plane: #07131e;
+    --rule: #2baeea;
+    --rule-soft: #1f3a52;
+    --against: #ff6b7f;
     --text-primary: #eef4f9;
     --text-secondary: #b2c1d0;
     --text-muted: #7d8fa1;
@@ -90,8 +104,11 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
   --hero-end: #8ad0f1;
-  --surface-1: #0f1e2c;
-  --plane: #08131d;
+  --surface-1: #0d1d2c;
+  --plane: #07131e;
+  --rule: #2baeea;
+  --rule-soft: #1f3a52;
+  --against: #ff6b7f;
   --text-primary: #eef4f9;
   --text-secondary: #b2c1d0;
   --text-muted: #7d8fa1;
@@ -603,3 +620,51 @@ a.ecard .body .w { font-size: 11.5px; color: var(--text-muted); margin-top: 8px;
   .bignums { gap: 20px; }
   main { padding: 24px 16px 70px; }
 }
+
+/* ============================================================ editorial ===
+   The editorial look (2026-10-29), layered over the rules above so each
+   component keeps its structure: serif display type, square panels with a
+   deep-blue rule on top, underlined tabs, and no decorative backdrop. */
+.sitebg { display: none; }
+h1, h2, h3, .brand, .tile .v, .card > header h2 {
+  font-family: var(--serif); font-optical-sizing: auto;
+}
+h1 { font-size: 40px; font-weight: 700; line-height: 1.12; letter-spacing: -.02em; }
+h2 { font-size: 24px; font-weight: 600; letter-spacing: -.01em; }
+h3 { font-weight: 600; }
+.brand { font-size: 21px; font-weight: 800; letter-spacing: -.01em; }
+.brand span { font-family: var(--font); font-size: 14px; }
+header.site { box-shadow: inset 0 -4px 0 var(--hdr-stripe); }
+.nav { padding-bottom: 4px; }
+.nav a.tab { border-radius: 0; padding: 7px 10px; }
+.nav a.tab:hover { background: transparent; color: var(--hdr-fg); }
+.nav a.tab[aria-current="page"] {
+  background: transparent; color: var(--hdr-fg);
+  box-shadow: inset 0 -2px 0 var(--hdr-fg);
+}
+.langlink, .themebtn { border-radius: 0; }
+
+.card {
+  border-radius: 0; border: 1px solid var(--rule-soft); border-top: 3px solid var(--rule);
+  box-shadow: none;
+}
+.tile {
+  border-radius: 0; border: 1px solid var(--rule-soft); border-top: 3px solid var(--rule);
+}
+.tile .v { font-size: 34px; font-weight: 600; letter-spacing: -.015em; }
+.seg, .subnav, .tablewrap, select, button.ghost, .datelines { border-radius: 0; }
+.subnav { border: 1px solid var(--rule-soft); }
+.seg { border-color: var(--rule-soft); }
+.seg button[aria-pressed="true"], .subnav a[aria-current="page"] {
+  background: var(--surface-1); color: var(--text-primary); box-shadow: inset 0 -3px 0 var(--rule);
+}
+.badge { border-radius: 2px; }
+.callout { border-radius: 0; }
+a.cardlink, a.ecard {
+  border-radius: 0; border: 1px solid var(--rule-soft); border-top: 3px solid var(--rule);
+}
+a.cardlink .t, a.ecard .body .t { font-family: var(--serif); font-size: 17px; font-weight: 600; }
+a.ecard:hover, a.cardlink:hover { border-color: var(--rule); }
+a.ecard .pic .n { border-radius: 0; }
+.ehero .pic { border-radius: 0; border-color: var(--rule-soft); }
+footer.site { border-top: 3px solid var(--rule); }
