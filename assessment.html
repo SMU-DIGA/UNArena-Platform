@@ -364,10 +364,10 @@ const refOrder = [...P5].sort((a, b) => V.reference[b] - V.reference[a]);
   const heldPct = Math.round(100 * V.drafts_held / V.drafts_reference);
   const dHeld = V.drafts_by_decade, recentHeld = sum(dHeld.slice(5).map((x) => x[1])), recentRef = sum(dHeld.slice(5).map((x) => x[0]));
   document.getElementById('veto-find').innerHTML = LANG === 'zh'
-    ? `<b>官方清单上共 ${fmt(vRef)} 次否决，语料库收录了其中 ${fmt(vCorpus)} 次</b>（${fmt(V.drafts_held)} / ${fmt(V.drafts_reference)} 份被否决的草案，${heldPct}%）。缺的大多在 1990 年以前：那些会议没有通过任何决议，语料库没有收录；1990 年以来收录了 ${fmt(recentHeld)} / ${fmt(recentRef)} 份。否决权的主要使用者随时间变化：${decs[0].a}–${decs[0].b} 年的 ${decs[0].tot} 次中有 ${decs[0].n} 次来自${LAB[decs[0].top]}；${decs[1].a}–${decs[1].b} 年仅有 ${decs[1].tot} 次，大多来自${LAB[decs[1].top]}；${decs[2].a} 年以来共 ${decs[2].tot} 次，其中 ${decs[2].n} 次来自${LAB[decs[2].top]}。否决最多的单一年份是 ${peak[0]} 年，共 ${peak[1]} 次。`
+    ? `<b>官方清单上共 ${fmt(vRef)} 次否决，语料库收录了其中 ${fmt(vCorpus)} 次</b>（${fmt(V.drafts_held)} / ${fmt(V.drafts_reference)} 份被否决的草案，${heldPct}%）。缺的大多在 1990 年以前，多是逐字记录只有扫描图、表决核实不了的会议；1990 年以来收录了 ${fmt(recentHeld)} / ${fmt(recentRef)} 份。否决权的主要使用者随时间变化：${decs[0].a}–${decs[0].b} 年的 ${decs[0].tot} 次中有 ${decs[0].n} 次来自${LAB[decs[0].top]}；${decs[1].a}–${decs[1].b} 年仅有 ${decs[1].tot} 次，大多来自${LAB[decs[1].top]}；${decs[2].a} 年以来共 ${decs[2].tot} 次，其中 ${decs[2].n} 次来自${LAB[decs[2].top]}。否决最多的单一年份是 ${peak[0]} 年，共 ${peak[1]} 次。`
     : `<b>The official list counts ${fmt(vRef)} vetoes; the corpus holds ${fmt(vCorpus)} of them</b>
-    (${fmt(V.drafts_held)} of ${fmt(V.drafts_reference)} vetoed drafts, ${heldPct}%). Most of the gap is before 1990, at
-    meetings that adopted no resolution and so were never collected; since 1990 the corpus holds ${fmt(recentHeld)}
+    (${fmt(V.drafts_held)} of ${fmt(V.drafts_reference)} vetoed drafts, ${heldPct}%). Most of the gap is before 1990, mostly
+    meetings whose verbatim record survives only as a scan and whose votes could not be verified; since 1990 the corpus holds ${fmt(recentHeld)}
     of ${fmt(recentRef)}. Over time the veto changes hands:
     in ${decs[0].a}–${decs[0].b} ${decs[0].n} of ${decs[0].tot} casts came from ${LAB[decs[0].top]};
     in ${decs[1].a}–${decs[1].b} there were only ${decs[1].tot}, mostly from ${LAB[decs[1].top]};
