@@ -133,13 +133,23 @@ html.js .open.go .rise:nth-child(6) { transition-delay: .54s }
 .eranav a.cur { color: var(--text-primary); font-weight: 600; }
 .eranav a.cur .dash { width: 30px; background: var(--era, var(--series-1)); }
 .eranav a.cur .lbl { opacity: 1; }
-/* The labels sit in the left margin. When the margin is narrower than a label (below ~1680px, with the
-   1240px content column), show only the dashes; on hover the labels appear on a chip of their own so they
-   never mix with the body text. */
-@media (max-width: 1679px) {
-  .eranav a.cur .lbl { opacity: 0; }
-  .eranav a .lbl { background: var(--surface-1); border: 1px solid var(--border); border-radius: 6px;
-    padding: 2px 8px; box-shadow: 0 4px 14px color-mix(in srgb, var(--text-primary) 10%, transparent); }
+/* The labels sit in the left margin beside the 1240px content column. From 1900px the margin fits the
+   years and the longest era name; from 1430px only the years (always shown, the era name on a chip on
+   hover); below that only the dashes, with the chip on hover, so nothing ever sits on the body text. */
+.eranav .yr { font-variant-numeric: tabular-nums; }
+@media (max-width: 1899px) {
+  .eranav { left: 14px; }
+  .eranav a { gap: 7px; font-size: 11px; }
+  .eranav a .dash { width: 10px; }
+  .eranav a.cur .dash { width: 20px; }
+  .eranav a .lbl { opacity: 1; }
+  .eranav a .tt { display: none; }
+  .eranav:hover a .tt { display: inline; }
+  .eranav:hover a .lbl { background: var(--surface-1); border: 1px solid var(--border); border-radius: 6px; padding: 1px 7px;
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--text-primary) 10%, transparent); }
+}
+@media (max-width: 1429px) {
+  .eranav a .lbl, .eranav a.cur .lbl { opacity: 0; }
   .eranav:hover a .lbl { opacity: 1; }
 }
 
@@ -688,7 +698,7 @@ document.querySelectorAll('.strip .row').forEach((row) => {
 /* --------------------------------------------------------------- era nav --- */
 document.getElementById('eranav').innerHTML = S.eras.map((e, i) =>
   `<a href="#era-${e.id}" data-era="${e.id}" data-i="${i}"><span class="dash"></span>
-    <span class="lbl">${esc(e.span)} ${esc(e.title)}</span></a>`).join('');
+    <span class="lbl"><span class="yr">${esc(e.span)}</span> <span class="tt">${esc(e.title)}</span></span></a>`).join('');
 
 /* ------------------------------------------------------------------ rail --- */
 /* One shared scale for both bodies: the larger maximum. Giving each its own
