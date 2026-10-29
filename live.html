@@ -39,6 +39,16 @@
     <div class="tablewrap"><table id="up"></table></div>
   </section>
 
+  <section class="card" id="fc-card">
+    <header><h2 data-l="en">Forecasts made before the vote</h2><h2 data-l="zh">表决前的预测</h2>
+      <p data-l="en">A language model plays all fifteen Council members: the penholder drafts, the others negotiate over two rounds,
+        then all vote at once. Each forecast is published before the meeting; once the verbatim record is out, the actual
+        result and the share of members whose vote was predicted correctly are filled in. An experiment, not an expert or
+        official prediction.</p>
+      <p data-l="zh">由一个语言模型扮演安理会全部 15 个成员：执笔国起草，其余成员磋商两轮，然后同时投票。每项预测都在开会前发布；逐字记录出来后，补上实际结果和逐国预测的准确率。这是一项实验，不是专家或官方的预测。</p></header>
+    <div class="tablewrap"><table id="fc"></table></div>
+  </section>
+
   <section class="card">
     <header><h2 data-l="en">Votes this year</h2><h2 data-l="zh">今年以来的表决</h2>
       <p data-l="en">From the verbatim records on the UN Official Document System, added as they are published (usually a few days after the meeting).</p>
@@ -62,8 +72,9 @@
   </div>
 
   <p class="note" data-l="en">Sources: UN Security Council monthly forecast and provisional programme of work (main.un.org); UN Official
-    Document System (documents.un.org); UN News, UN Press and Google News. Headlines belong to their publishers.</p>
-  <p class="note" data-l="zh">来源：安理会月度预报与临时工作计划（main.un.org）；联合国正式文件系统（documents.un.org）；联合国新闻、联合国新闻稿与 Google News。新闻标题版权属于原发布方。</p>
+    Document System (documents.un.org); UN News, UN Press and Google News. Headlines belong to their publishers.
+    Forecasts: a simulation by gemini-3.8-flash.</p>
+  <p class="note" data-l="zh">来源：安理会月度预报与临时工作计划（main.un.org）；联合国正式文件系统（documents.un.org）；联合国新闻、联合国新闻稿与 Google News。新闻标题版权属于原发布方。预测：gemini-3.8-flash 的模拟。</p>
 </main>
 
 <script src="data/live.js"></script>
@@ -93,6 +104,25 @@ document.getElementById('up').innerHTML =
   D.upcoming.map((u) => `<tr><td>${u.date_approximate ? '≈ ' : ''}${esc(u.date)}</td><td class="l">${esc(u.subject)}</td>
     <td class="l">${esc(KIND[u.kind] || u.kind)}</td><td>${esc(u.mandate_expires || '—')}</td><td>${esc(u.current_resolution)}</td></tr>`).join('') +
   '</tbody>';
+
+const fc = D.forecasts || [];
+const nonYes = (votes) => {
+  const g = { N: [], A: [] };
+  Object.entries(votes).forEach(([c, x]) => { if (g[x]) g[x].push(c); });
+  return [g.N.length ? L('Against: ', '反对：') + names(g.N) : '', g.A.length ? L('Abstain: ', '弃权：') + names(g.A) : '']
+    .filter(Boolean).join('<br>') || L('All in favour', '全部赞成');
+};
+const res = (o) => `<span class="badge ${BADGE[o.outcome]}">${esc(OUT[o.outcome] || o.outcome)}</span> ${o.tally.join('–')}`;
+if (!fc.length) document.getElementById('fc-card').hidden = true;
+document.getElementById('fc').innerHTML =
+  `<thead><tr><th>${L('Vote date', '表决日')}</th><th class="l">${L('Item', '事项')}</th><th class="l">${L('Forecast', '预测')}</th>
+   <th class="wrap">${L('Forecast: not in favour', '预测：未投赞成')}</th><th class="l">${L('Actual', '实际')}</th>
+   <th>${L('Members right', '逐国猜对')}</th><th>${L('Made at (UTC)', '预测时间 (UTC)')}</th></tr></thead><tbody>` +
+  fc.map((f) => `<tr><td>${esc(f.date)}</td><td class="l">${esc(f.subject)}</td><td class="l">${res(f.predicted)}</td>
+    <td class="wrap">${nonYes(f.predicted.votes)}</td>
+    <td class="l">${f.actual ? res(f.actual) : L('awaiting record', '等待记录')}</td>
+    <td>${f.vote_accuracy == null ? '—' : Math.round(f.vote_accuracy * 100) + '%'}</td>
+    <td>${esc((f.generated_at || '').replace('T', ' ').slice(0, 16))}</td></tr>`).join('') + '</tbody>';
 
 document.getElementById('votes').innerHTML =
   `<thead><tr><th>${L('Date', '日期')}</th><th class="l">${L('Agenda', '议程')}</th><th class="l">${L('Document', '文件')}</th>
