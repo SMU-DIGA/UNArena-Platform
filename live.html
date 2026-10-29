@@ -24,6 +24,10 @@
 .newslist { list-style: none; margin: 0; padding: 0; }
 .newslist li { padding: 8px 0; border-bottom: 1px solid var(--grid); font-size: 13.5px; }
 .newslist .meta { color: var(--text-muted); font-size: 12.5px; margin-right: 8px; font-variant-numeric: tabular-nums; }
+.newslist li { display: flex; gap: 9px; align-items: baseline; }
+.newslist li svg.ic { width: 14px; height: 14px; color: var(--series-1); flex: none; position: relative; top: 2px; }
+.newslist li .t { min-width: 0; }
+.stamp svg.ic { width: 13px; height: 13px; vertical-align: -2px; margin-right: 4px; }
 .stamp { color: var(--text-muted); font-size: 13px; }
 </style>
 </head>
@@ -94,11 +98,13 @@
 const D = window.LIVE;
 const OUT = { adopted: L('Adopted', '通过'), vetoed: L('Vetoed', '被否决'), 'not adopted': L('Not adopted', '未通过') };
 const BADGE = { adopted: 'good', vetoed: 'critical', 'not adopted': 'warning' };
+const BADGE_IC = { adopted: 'check', vetoed: 'ban', 'not adopted': 'minus' };
+const badge = (o) => `<span class="badge ${BADGE[o]}">${svg(BADGE_IC[o])}${esc(OUT[o] || o)}</span>`;
 const KIND = { mandate_renewal: L('Mandate renewal', '授权续期'), adoption: L('Adoption', '表决') };
 const names = (xs) => xs.map(cname).join(L(', ', '、'));
 
-document.getElementById('stamp').textContent =
-  L('Updated ', '更新于 ') + D.generated_at.replace('T', ' ').replace('+00:00', ' UTC');
+document.getElementById('stamp').innerHTML = svg('clock') +
+  esc(L('Updated ', '更新于 ') + D.generated_at.replace('T', ' ').replace('+00:00', ' UTC'));
 
 const y = D.votes.length, ad = D.votes.filter((v) => v.outcome === 'adopted').length;
 document.getElementById('tiles').innerHTML = [
@@ -128,7 +134,7 @@ const nonYes = (votes) => {
   return [g.N.length ? L('Against: ', '反对：') + esc(names(g.N)) : '', g.A.length ? L('Abstain: ', '弃权：') + esc(names(g.A)) : '']
     .filter(Boolean).join('<br>') || L('All in favour', '全部赞成');
 };
-const res = (o) => `<span class="badge ${BADGE[o.outcome]}">${esc(OUT[o.outcome] || o.outcome)}</span> <span class="num">${o.tally.join('–')}</span>`;
+const res = (o) => `${badge(o.outcome)} <span class="num">${o.tally.join('–')}</span>`;
 if (!fc.length) document.getElementById('fc-card').hidden = true;
 table('fc', [[L('Vote date', '表决日'), 10, 'num opt'], [L('Item', '事项'), 19], [L('Forecast', '预测'), 13],
              [L('Forecast: not in favour', '预测：未投赞成'), 22, 'opt'], [L('Actual', '实际'), 13], [L('Members right', '逐国猜对'), 9, 'num opt'],
@@ -142,7 +148,7 @@ const link = (href, text) => href ? `<a href="${esc(href)}" target="_blank" rel=
 table('votes', [[L('Date', '日期'), 11, 'num'], [L('Agenda', '议程'), 31], [L('Document', '文件'), 15, 'opt'],
                 [L('Outcome', '结果'), 10], [L('For–Against–Abst.', '赞成–反对–弃权'), 11, 'num opt'], [L('Against / abstaining', '反对 / 弃权'), 22, 'opt']],
   D.votes.map((v) => [link(v.links.record, v.date), esc(v.agenda), link(v.links.document, v.document),
-                      `<span class="badge ${BADGE[v.outcome]}">${esc(OUT[v.outcome] || v.outcome)}</span><span class="ph">${v.tally.join('–')}</span>`,
+                      `${badge(v.outcome)}<span class="ph">${v.tally.join('–')}</span>`,
                       v.tally.join('–'),
                       [v.against.length ? L('Against: ', '反对：') + esc(names(v.against)) : '',
                        v.abstaining.length ? L('Abstained: ', '弃权：') + esc(names(v.abstaining)) : ''].filter(Boolean).join('<br>')]));
@@ -150,9 +156,11 @@ table('votes', [[L('Date', '日期'), 11, 'num'], [L('Agenda', '议程'), 31], [
 table('exp', [[L('Mandate', '授权'), 46], [L('Expires', '到期'), 27, 'num'], [L('Set by', '依据'), 27, 'num']],
   D.expiries.map((e) => [esc(e.subject), esc(e.expires), esc(e.decision)]));
 
+/* UN sources get the globe, other publishers the newspaper */
+const UN_SRC = /^UN\b|United Nations|UN News|UN Press/;
 document.getElementById('news').innerHTML = D.news.map((n) =>
-  `<li><span class="meta">${esc(n.date)}${n.source ? ' · ' + esc(n.source) : ''}</span>
-   <a href="${esc(n.link)}" target="_blank" rel="noopener">${esc(n.title)}</a></li>`).join('');
+  `<li>${svg(UN_SRC.test(n.source || '') ? 'globe' : 'news')}<span class="t"><span class="meta">${esc(n.date)}${n.source ? ' · ' + esc(n.source) : ''}</span>
+   <a href="${esc(n.link)}" target="_blank" rel="noopener">${esc(n.title)}</a></span></li>`).join('');
 
 </script>
 </body>

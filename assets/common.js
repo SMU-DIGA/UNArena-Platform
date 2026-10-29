@@ -57,6 +57,81 @@ const catname = (c) => (ZH.categories && ZH.categories[c]) || c;
   document.querySelectorAll('[data-zh-title]').forEach((el) => { el.title = el.dataset.zhTitle; });
 })();
 
+/* ---------------------------------------------------------------- icons --- */
+/* A small line-icon set drawn for this site (24×24, stroke = currentColor).
+   Bar and sub-nav icons are inline SVG; headings, tiles and callouts get theirs
+   from decorate(), which stores the choice in data-ic and draws it as a CSS
+   mask in ::before — so a page script that later rewrites a heading's text
+   keeps the icon, and content added after load is picked up by an observer. */
+const ICONS = {
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  book: '<path d="M3 5.5C5.5 4.3 8.5 4.3 12 6c3.5-1.7 6.5-1.7 9-.5V19c-2.5-1.2-5.5-1.2-9 .5-3.5-1.7-6.5-1.7-9-.5z"/><path d="M12 6v13.5"/>',
+  chart: '<path d="M4 20h16"/><path d="M7 16v-5"/><path d="M12 16V6"/><path d="M17 16v-8"/>',
+  live: '<circle cx="12" cy="12" r="2.2"/><path d="M8.2 15.8a5.4 5.4 0 0 1 0-7.6"/><path d="M15.8 8.2a5.4 5.4 0 0 1 0 7.6"/><path d="M5.3 18.7a9.5 9.5 0 0 1 0-13.4"/><path d="M18.7 5.3a9.5 9.5 0 0 1 0 13.4"/>',
+  globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.6 2.6 3.8 5.6 3.8 9s-1.2 6.4-3.8 9c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3z"/>',
+  file: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 12h6"/><path d="M9 16h6"/>',
+  tag: '<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.3"/>',
+  pie: '<path d="M12 3v9h9"/><path d="M20.4 15.5A9 9 0 1 1 8.5 3.7"/>',
+  calendar: '<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17"/><path d="M8 3v4"/><path d="M16 3v4"/>',
+  ban: '<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>',
+  xcircle: '<circle cx="12" cy="12" r="9"/><path d="M9 9l6 6"/><path d="M15 9l-6 6"/>',
+  check: '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16.5 9.5"/>',
+  minus: '<circle cx="12" cy="12" r="9"/><path d="M8 12h8"/>',
+  gauge: '<path d="M4 17a8 8 0 1 1 16 0"/><path d="M12 17l4-5"/><circle cx="12" cy="17" r="1.2"/>',
+  users: '<circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="16.5" cy="9.5" r="2.6"/><path d="M15.5 14.2c2.6-.3 4.6 1.3 5 4.3"/>',
+  ballot: '<rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/>',
+  landmark: '<path d="M3 9l9-5 9 5"/><path d="M5 10v7"/><path d="M9.7 10v7"/><path d="M14.3 10v7"/><path d="M19 10v7"/><path d="M3 20h18"/>',
+  shield: '<path d="M12 3l7.5 3v5.5c0 4.5-3.2 8-7.5 9.5-4.3-1.5-7.5-5-7.5-9.5V6z"/>',
+  news: '<rect x="3.5" y="5" width="13" height="14" rx="1.5"/><path d="M16.5 9h4v8.5a1.5 1.5 0 0 1-3 0"/><path d="M7 9h6"/><path d="M7 12.5h6"/><path d="M7 16h4"/>',
+  spark: '<path d="M12 3l1.9 5.4L19.5 10l-5.6 1.7L12 17l-1.9-5.3L4.5 10l5.6-1.6z"/><path d="M18.5 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/>',
+  hourglass: '<path d="M6.5 3h11"/><path d="M6.5 21h11"/><path d="M7.5 3c0 4.5 4.5 6 4.5 9s-4.5 4.5-4.5 9"/><path d="M16.5 3c0 4.5-4.5 6-4.5 9s4.5 4.5 4.5 9"/>',
+  flag: '<path d="M5 21V4"/><path d="M5 4.5c4-2 7 2 11 0v8c-4 2-7-2-11 0"/>',
+  layers: '<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.6v.1"/>',
+  dot: '<circle cx="12" cy="12" r="3.5"/>',
+};
+const svg = (name, cls = 'ic') =>
+  `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name] || ICONS.dot}</svg>`;
+const icURL = (name) => `url("data:image/svg+xml,${encodeURIComponent(
+  `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>${ICONS[name] || ICONS.dot}</svg>`)}")`;
+
+/* First match wins; English and Chinese wording both count. */
+const IC_RULES = [
+  [/forecast|predict|预测/i, 'spark'], [/news|新闻/i, 'news'], [/mandate|expir|授权|到期/i, 'hourglass'],
+  [/veto|否决/i, 'ban'], [/fail|not adopted|voted down|未通过/i, 'xcircle'], [/coverage|thin|gap|覆盖|缺口|太少/i, 'gauge'],
+  [/pair|agree|same way|一致/i, 'users'], [/region|地区|区域/i, 'globe'],
+  [/map|country|countries|states|geograph|地图|国家|地理/i, 'globe'], [/invite|in the room|attend|邀请|受邀|出席|在场|会场/i, 'users'],
+  [/coming|next|接下来|下一/i, 'calendar'], [/split|vote|ballot|roll call|表决|投票|唱名/i, 'ballot'],
+  [/business|kinds|function|职能|事务|类事/i, 'tag'], [/matched|keyword|匹配|关键词/i, 'tag'],
+  [/topic|categor|subject|议题|类别|主题/i, 'tag'], [/entr|专题|条目/i, 'book'],
+  [/passage|dated|段落|大事记/i, 'clock'], [/median|description|描述/i, 'file'], [/comes from|source|来源|出处/i, 'file'],
+  [/first and last|when |何时|首次|最早|最近/i, 'calendar'],
+  [/year|annual|session|decade|每届|年度|年代|届/i, 'calendar'], [/assembly|大会/i, 'landmark'],
+  [/council|安理会|安全理事会/i, 'shield'], [/resolution|record|meeting|document|决议|记录|会议|文件/i, 'file'],
+  [/timeline|chronolog|histor|narrative|时间线|叙事|历史/i, 'clock'],
+  [/chart|output|structure|trend|drift|share|图表|产出|结构|趋势|比例/i, 'chart'],
+  [/member|理事国|成员/i, 'users'],
+];
+function iconFor(text) {
+  for (const [re, name] of IC_RULES) if (re.test(text)) return name;
+  return 'dot';
+}
+const IC_TARGETS = 'main h2, .tile .k, .callout';
+function decorate(root) {
+  const els = root.matches && root.matches(IC_TARGETS) ? [root] : [];
+  if (root.querySelectorAll) els.push(...root.querySelectorAll(IC_TARGETS));
+  els.forEach((el) => {
+    if (el.dataset.ic) return;
+    const name = el.dataset.icon || (el.matches('.callout') ? 'info'
+      : iconFor(`${el.textContent} ${el.dataset.zh || ''} ${el.id || ''}`));
+    el.dataset.ic = name;
+    el.style.setProperty('--ic', icURL(name));
+  });
+}
+const NAV_ICON = { 'index.html': 'clock', 'entries.html': 'book', 'topics.html': 'tag', 'geo.html': 'globe',
+  'browse.html': 'file', 'timeline.html': 'chart', 'assessment.html': 'pie', 'live.html': 'live',
+  Entries: 'layers', Data: 'chart' };
+
 /* The labels are the short form; each page's own <h1> carries the full name.
    Four tabs on the bar. A group tab opens its first page; the pages of a group
    are switched with a row of links above the page title (subNav), not a
@@ -200,7 +275,9 @@ function initChrome() {
   const tabs = NAV.map((n) => {
     const [href, en, zh] = Array.isArray(n[2]) ? [n[2][0][0], n[0], n[1]] : n;
     const on = n === group || href === here;
-    return `<a class="tab" href="${href}"${on ? ' aria-current="page"' : ''}>${L(en, zh)}</a>`;
+    const ic = NAV_ICON[Array.isArray(n[2]) ? n[0] : href];
+    const dot = href === 'live.html' ? '<span class="livedot" aria-hidden="true"></span>' : '';
+    return `<a class="tab" href="${href}"${on ? ' aria-current="page"' : ''}>${svg(ic)}<span>${L(en, zh)}</span>${dot}</a>`;
   }).join('');
 
   /* Inserted first so it sits under everything, including the landing page's
@@ -225,8 +302,12 @@ function initChrome() {
   if (group && main) {
     main.insertAdjacentHTML('afterbegin', `<nav class="seg subnav" aria-label="${L(group[0], group[1])}">` +
       group[2].map(([href, en, zh]) =>
-        `<a href="${href}"${href === here ? ' aria-current="page"' : ''}>${L(en, zh)}</a>`).join('') + '</nav>');
+        `<a href="${href}"${href === here ? ' aria-current="page"' : ''}>${svg(NAV_ICON[href])}${L(en, zh)}</a>`).join('') + '</nav>');
   }
+
+  decorate(document.body);
+  new MutationObserver((ms) => ms.forEach((m) => m.addedNodes.forEach((nd) => { if (nd.nodeType === 1) decorate(nd); })))
+    .observe(document.body, { childList: true, subtree: true });
 
   document.getElementById('theme-btn').onclick = toggleTheme;
   /* boot.js has already applied a stored or ?theme= choice; the charts drawn

@@ -640,7 +640,7 @@ document.getElementById('sections').innerHTML = S.eras.map((era, ei) => {
     <section class="era" id="era-${era.id}" data-ei="${ei}">
       <div class="era-head">
         <div class="span">${esc(era.span)}</div>
-        <h2>${esc(era.title)}</h2>
+        <h2 data-icon="flag">${esc(era.title)}</h2>
         <p>${esc(era.blurb)}</p>
       </div>
       <div class="era-rule"></div>

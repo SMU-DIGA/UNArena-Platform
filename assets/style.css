@@ -237,6 +237,40 @@ header.site {
 .nav .tabs { display: flex; align-items: center; gap: 2px; min-width: 0; margin-right: 14px; }
 .nav .spacer { flex: 1; min-width: 12px; }
 
+/* ---------------------------------------------------------------- icons --- */
+/* Inline icons (bar, sub-nav, badges) and the masked ::before icons that
+   decorate() in common.js puts on headings, tile labels and callouts. */
+svg.ic { width: 15px; height: 15px; flex: none; }
+.nav a.tab { display: inline-flex; align-items: center; gap: 7px; position: relative; }
+.nav a.tab svg.ic { opacity: .85; }
+.nav a.tab[aria-current="page"] svg.ic { opacity: 1; }
+.livedot {
+  width: 7px; height: 7px; border-radius: 50%; background: #ff5a5f; margin-left: -2px;
+  box-shadow: 0 0 0 0 rgba(255, 90, 95, .7); animation: livepulse 2s infinite;
+}
+@keyframes livepulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 90, 95, .65); }
+  70% { box-shadow: 0 0 0 7px rgba(255, 90, 95, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 90, 95, 0); }
+}
+@media (prefers-reduced-motion: reduce) { .livedot { animation: none; } }
+[data-ic]::before {
+  content: ''; display: inline-block; flex: none;
+  width: 1em; height: 1em; margin-right: .45em; vertical-align: -.13em;
+  background: currentColor;
+  -webkit-mask: var(--ic) center / contain no-repeat; mask: var(--ic) center / contain no-repeat;
+}
+h2[data-ic]::before { width: .95em; height: .95em; background: var(--series-1); }
+.tile .k[data-ic]::before { width: 13px; height: 13px; margin-right: 6px; vertical-align: -2px; background: var(--series-1); opacity: .85; }
+.callout[data-ic] { position: relative; padding-left: 42px; }
+.callout[data-ic]::before {
+  position: absolute; left: 15px; top: 14px; width: 17px; height: 17px; margin: 0; background: var(--warning);
+}
+.callout.critical[data-ic]::before { background: var(--critical); }
+.badge svg.ic { width: 12px; height: 12px; margin-left: -2px; }
+.subnav a { display: inline-flex; align-items: center; gap: 7px; }
+.subnav a svg.ic { width: 14px; height: 14px; opacity: .8; }
+
 /* Pages of one tab group (see NAV in common.js): a segmented row above the title. */
 .subnav { display: flex; width: max-content; margin-bottom: 18px; }
 .subnav a {
