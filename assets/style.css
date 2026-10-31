@@ -706,7 +706,7 @@ header.site { box-shadow: inset 0 -1px 0 var(--hdr-stripe); }
   letter-spacing: .3em; text-transform: uppercase; }
 .brand svg.hs { width: 46px; height: 28px; }
 .brand svg.hs circle { transform-box: fill-box; transform-origin: center;
-  animation: seat-no 15s calc(var(--i) * 1s - 15s) infinite; }
+  animation: seat-no 30s calc(var(--i) * 2s - 30s) infinite; }
 @keyframes seat-no { 0%, 5% { fill: var(--against); transform: scale(1.6); }
   7.5%, 100% { fill: var(--seat); transform: none; } }
 @media (prefers-reduced-motion: reduce) { .brand svg.hs circle { animation: none; } .brand svg.hs .n { transform: scale(1.6); } }
