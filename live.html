@@ -127,6 +127,7 @@ table('up', [[L('Date', '日期'), 17, 'num'], [L('Item', '事项'), 37], [L('Ty
   D.upcoming.map((u) => [(u.date_approximate ? '≈ ' : '') + esc(u.date), esc(u.subject), esc(KIND[u.kind] || u.kind),
                          esc(u.mandate_expires || '—'), esc(u.current_resolution)]));
 
+const link = (href, text) => href ? `<a href="${esc(href)}" target="_blank" rel="noopener">${esc(text)}</a>` : esc(text || '—');
 const fc = D.forecasts || [];
 const nonYes = (votes) => {
   const g = { N: [], A: [] };
@@ -140,11 +141,11 @@ table('fc', [[L('Vote date', '表决日'), 10, 'num opt'], [L('Item', '事项'),
              [L('Forecast: not in favour', '预测：未投赞成'), 22, 'opt'], [L('Actual', '实际'), 13], [L('Members right', '逐国猜对'), 9, 'num opt'],
              [L('Made at (UTC)', '预测时间 (UTC)'), 14, 'num opt']],
   fc.map((f) => [esc(f.date), esc(f.subject) + `<span class="ph">${esc(f.date)}</span>`, res(f.predicted), nonYes(f.predicted.votes),
-                 f.actual ? res(f.actual) : L('awaiting record', '等待记录'),
+                 f.actual ? res(f.actual) + (f.actual.provisional ? `<br><span style="font-size:12px;color:var(--text-muted)">${link(f.actual.source, L('press release, provisional', '新闻稿，待记录核实'))}</span>` : '')
+                          : L('awaiting record', '等待记录'),
                  f.vote_accuracy == null ? '—' : Math.round(f.vote_accuracy * 100) + '%',
                  esc((f.generated_at || '').replace('T', ' ').slice(0, 16))]));
 
-const link = (href, text) => href ? `<a href="${esc(href)}" target="_blank" rel="noopener">${esc(text)}</a>` : esc(text || '—');
 table('votes', [[L('Date', '日期'), 11, 'num'], [L('Agenda', '议程'), 31], [L('Document', '文件'), 15, 'opt'],
                 [L('Outcome', '结果'), 10], [L('For–Against–Abst.', '赞成–反对–弃权'), 11, 'num opt'], [L('Against / abstaining', '反对 / 弃权'), 22, 'opt']],
   D.votes.map((v) => [link(v.links.record, v.date), esc(v.agenda), link(v.links.document, v.document),
