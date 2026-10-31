@@ -45,13 +45,13 @@ main.story { max-width: none; margin: 0; padding: 0; position: relative; z-index
    first is 26 characters, so a narrower measure breaks "voting," onto a line
    of its own. */
 /* The headline is two deliberate lines, and the first ("Eighty years of UN
-   voting,") is about 11.8 em wide in Fraunces 800: the size is set from the
+   voting,") is about 11.8 em wide in Playfair 600: the size is set from the
    width of the column it sits in (a container unit), so that line never
    breaks. Beside the photograph the text column is 1.6/2.6 of the row. */
 .open { container-type: inline-size; }
 .open h1 {
-  font-size: min(84px, 7.8cqi); font-weight: 500;
-  line-height: 1.0; letter-spacing: -.028em; margin: 0 0 28px; max-width: 28ch;
+  font-size: min(80px, 7.6cqi); font-weight: 600;
+  line-height: 1.0; letter-spacing: -.012em; margin: 0 0 28px; max-width: 28ch;
 }
 .open h1 em { font-style: italic; font-weight: 500; color: var(--seat); }
 html[lang="zh-CN"] .open h1 em { font-style: normal; }
