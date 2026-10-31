@@ -275,9 +275,11 @@ function horseshoe(members, votes, { decor = false } = {}) {
   const label = L(`${count.Y} in favour, ${count.N} against, ${count.A} abstaining`, `赞成 ${count.Y}，反对 ${count.N}，弃权 ${count.A}`);
   return `<svg class="hs" viewBox="0 -44 120 74" ${decor ? 'aria-hidden="true"' : `role="img" aria-label="${label}"`}>${seats}</svg>`;
 }
-/* The brand: fifteen seats with the one at the head of the table voting no. */
+/* The brand: fifteen seats, with the "no" passing round the table one seat at a
+   time (style.css .brand .hs circle; it rests on the head seat under reduced motion). */
+let seatNo = 0;
 const BRAND_MARK = horseshoe([...Array(15).keys()], { 7: 'N' }, { decor: true })
-  .replace(/<circle class="x"/g, '<circle class="y"');
+  .replace(/<circle class="(\w)"/g, (_, c) => `<circle class="${c === 'x' ? 'y' : c}" style="--i:${(seatNo++ - 7 + 15) % 15}"`);
 
 /* The half-filled circle: one button that flips between light and dark. */
 const CONTRAST = `<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
