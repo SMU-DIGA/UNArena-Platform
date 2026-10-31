@@ -3,7 +3,7 @@
 
    Language: ?lang=en|zh, else the stored choice, else the browser's language.
    A ?lang link is remembered, so following one into the site keeps that
-   language on the pages it links to. Theme: ?theme=light|dark pins the mode
+   language on the pages it links to. Theme: light by default; ?theme=light|dark pins the mode
    for one view (a print, a screenshot) without touching the stored choice. */
 (function () {
   var d = document.documentElement;
@@ -27,7 +27,8 @@
 
   var theme = qs.get('theme');
   if (theme !== 'light' && theme !== 'dark') theme = stored.theme;
-  if (theme === 'light' || theme === 'dark') d.setAttribute('data-theme', theme);
+  // Light unless the visitor chose dark: long reading on a dark page is tiring (2026-10-31).
+  d.setAttribute('data-theme', theme === 'dark' ? 'dark' : 'light');
 
   d.classList.add('js');
 })();

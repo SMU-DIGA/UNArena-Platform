@@ -50,26 +50,25 @@ main.story { max-width: none; margin: 0; padding: 0; position: relative; z-index
    breaks. Beside the photograph the text column is 1.6/2.6 of the row. */
 .open { container-type: inline-size; }
 .open h1 {
-  font-size: min(80px, 7.8cqi); font-weight: 800;
+  font-size: min(84px, 7.8cqi); font-weight: 500;
   line-height: 1.0; letter-spacing: -.028em; margin: 0 0 28px; max-width: 28ch;
 }
-.open h1 em { font-style: italic; font-weight: 500; color: var(--series-1); }
+.open h1 em { font-style: italic; font-weight: 500; color: var(--seat); }
 html[lang="zh-CN"] .open h1 em { font-style: normal; }
 /* Chinese glyphs are square and wide: at the Latin size the first line breaks before its last two characters. */
 html[lang="zh-CN"] .open h1 { font-size: min(64px, 9.6cqi); line-height: 1.15; }
 .open .eyebrow { color: var(--series-1); font-weight: 600; }
-.open p { font-family: var(--serif); }
+.open p { font-family: var(--font); }
 
 /* The photograph beside the headline, toned to the UN blue: a grey print
    multiplied over the brand's pale blue. */
 .heroshot { margin: 0; min-width: 0; }
-.heroshot .tone { background: #8fcdef; aspect-ratio: 4 / 5; max-height: 440px; width: 100%; overflow: hidden; }
+.heroshot .tone { background: var(--grid); aspect-ratio: 4 / 5; max-height: 440px; width: 100%; overflow: hidden; }
 .heroshot img { width: 100%; height: 100%; object-fit: cover; display: block;
-  filter: grayscale(1) contrast(1.1); mix-blend-mode: multiply; }
+  filter: grayscale(1) contrast(1.12); }
 .heroshot figcaption { font-size: 12px; line-height: 1.5; color: var(--text-secondary); margin-top: 9px; }
 .heroshot .credit { padding: 3px 0 0; }
-:root[data-theme="dark"] .heroshot .tone { background: #0b3a5e; }
-:root[data-theme="dark"] .heroshot img { mix-blend-mode: screen; opacity: .9; }
+:root[data-theme="dark"] .heroshot img { opacity: .9; }
 @media (prefers-color-scheme: dark) {
   :root:where(:not([data-theme="light"])) .heroshot .tone { background: #0b3a5e; }
   :root:where(:not([data-theme="light"])) .heroshot img { mix-blend-mode: screen; opacity: .9; }

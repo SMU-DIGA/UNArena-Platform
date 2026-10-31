@@ -13,6 +13,7 @@
 .live td.num, .live span.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .live th { white-space: normal; }
 .live .ph { display: none; }
+.live .hsw { width: 92px; margin: 2px 0 8px; }
 @media (max-width: 640px) {
   .live .opt { display: none; }
   .live table { table-layout: auto; }            /* 手机上按内容分宽，隐藏的列不占位 */
@@ -136,12 +137,16 @@ const nonYes = (votes) => {
     .filter(Boolean).join('<br>') || L('All in favour', '全部赞成');
 };
 const res = (o) => `${badge(o.outcome)} <span class="num">${o.tally.join('–')}</span>`;
+/* every vote of the current Council drawn as its fifteen seats (horseshoe() in common.js) */
+const MEMBERS = (D.council && D.council.members) || [];
+const seats = (votes) => MEMBERS.length ? `<div class="hsw">${horseshoe(MEMBERS, votes)}</div>` : '';
+const votesOf = (v) => Object.fromEntries(MEMBERS.map((c) => [c, v.against.includes(c) ? 'N' : v.abstaining.includes(c) ? 'A' : 'Y']));
 if (!fc.length) document.getElementById('fc-card').hidden = true;
 table('fc', [[L('Vote date', '表决日'), 10, 'num opt'], [L('Item', '事项'), 19], [L('Forecast', '预测'), 13],
              [L('Forecast: not in favour', '预测：未投赞成'), 22, 'opt'], [L('Actual', '实际'), 13], [L('Members right', '逐国猜对'), 9, 'num opt'],
              [L('Made at (UTC)', '预测时间 (UTC)'), 14, 'num opt']],
-  fc.map((f) => [esc(f.date), esc(f.subject) + `<span class="ph">${esc(f.date)}</span>`, res(f.predicted), nonYes(f.predicted.votes),
-                 f.actual ? res(f.actual) + (f.actual.provisional ? `<br><span style="font-size:12px;color:var(--text-muted)">${link(f.actual.source, L('press release, provisional', '新闻稿，待记录核实'))}</span>` : '')
+  fc.map((f) => [esc(f.date), esc(f.subject) + `<span class="ph">${esc(f.date)}</span>`, seats(f.predicted.votes) + res(f.predicted), nonYes(f.predicted.votes),
+                 f.actual ? seats(f.actual.votes) + res(f.actual) + (f.actual.provisional ? `<br><span style="font-size:12px;color:var(--text-muted)">${link(f.actual.source, L('press release, provisional', '新闻稿，待记录核实'))}</span>` : '')
                           : L('awaiting record', '等待记录'),
                  f.vote_accuracy == null ? '—' : Math.round(f.vote_accuracy * 100) + '%',
                  esc((f.generated_at || '').replace('T', ' ').slice(0, 16))]));
@@ -149,7 +154,7 @@ table('fc', [[L('Vote date', '表决日'), 10, 'num opt'], [L('Item', '事项'),
 table('votes', [[L('Date', '日期'), 11, 'num'], [L('Agenda', '议程'), 31], [L('Document', '文件'), 15, 'opt'],
                 [L('Outcome', '结果'), 10], [L('For–Against–Abst.', '赞成–反对–弃权'), 11, 'num opt'], [L('Against / abstaining', '反对 / 弃权'), 22, 'opt']],
   D.votes.map((v) => [link(v.links.record, v.date), esc(v.agenda), link(v.links.document, v.document),
-                      `${badge(v.outcome)}<span class="ph">${v.tally.join('–')}</span>`,
+                      (D.council && v.date.startsWith(String(D.council.year)) ? seats(votesOf(v)) : '') + `${badge(v.outcome)}<span class="ph">${v.tally.join('–')}</span>`,
                       v.tally.join('–'),
                       [v.against.length ? L('Against: ', '反对：') + esc(names(v.against)) : '',
                        v.abstaining.length ? L('Abstained: ', '弃权：') + esc(names(v.abstaining)) : ''].filter(Boolean).join('<br>')]));

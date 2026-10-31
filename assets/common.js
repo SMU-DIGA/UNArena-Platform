@@ -251,6 +251,30 @@ function mountChart(el, build) {
 const GLOBE = `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
   <circle cx="16" cy="16" r="12.5"/><ellipse cx="16" cy="16" rx="5.6" ry="12.5"/>
   <path d="M3.5 16h25M5.6 9.5h20.8M5.6 22.5h20.8"/></svg>`;
+/* ============================================================ horseshoe ===
+   The site's one recurring mark: a Council vote drawn as its seats around the
+   horseshoe table, members in English alphabetical order as they sit. A filled
+   seat voted yes, a hollow one abstained, a red one voted no (from a permanent
+   member, a veto); a dashed seat did not vote or is not known.
+   members: names in seat order; votes: {name: 'Y'|'N'|'A'}. */
+const SEAT = { Y: ['y', 5.5, 'in favour', '赞成'], N: ['n', 6.5, 'against', '反对'], A: ['a', 4.8, 'abstained', '弃权'] };
+function horseshoe(members, votes, { decor = false } = {}) {
+  const n = members.length, span = 200, R = 46;
+  const count = { Y: 0, N: 0, A: 0 };
+  const seats = members.map((m, i) => {
+    const th = (180 + (span - 180) / 2 - (n > 1 ? i * span / (n - 1) : span / 2)) * Math.PI / 180;
+    const [cls, r, en, zh] = SEAT[votes[m]] || ['x', 5, 'did not vote', '未投票'];
+    if (count[votes[m]] != null) count[votes[m]]++;
+    const t = decor ? '' : `<title>${esc(L(m, (ZH.countries || {})[m] || m))}: ${L(en, zh)}</title>`;
+    return `<circle class="${cls}" cx="${(60 + R * Math.cos(th)).toFixed(1)}" cy="${(14 - R * Math.sin(th)).toFixed(1)}" r="${r}">${t}</circle>`;
+  }).join('');
+  const label = L(`${count.Y} in favour, ${count.N} against, ${count.A} abstaining`, `赞成 ${count.Y}，反对 ${count.N}，弃权 ${count.A}`);
+  return `<svg class="hs" viewBox="0 -44 120 74" ${decor ? 'aria-hidden="true"' : `role="img" aria-label="${label}"`}>${seats}</svg>`;
+}
+/* The brand: fifteen seats with the one at the head of the table voting no. */
+const BRAND_MARK = horseshoe([...Array(15).keys()], { 7: 'N' }, { decor: true })
+  .replace(/<circle class="x"/g, '<circle class="y"');
+
 /* The half-filled circle: one button that flips between light and dark. */
 const CONTRAST = `<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
   <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 1.5v11a5.5 5.5 0 0 1 0-11z"/></svg>`;
@@ -261,8 +285,8 @@ const isDark = () => {
   return t ? t === 'dark' : DARK_MQ.matches;
 };
 
-/* Until the visitor chooses, the page follows the system; the button then
-   flips whichever theme is showing and remembers it. */
+/* boot.js starts every page light unless dark was chosen; the button flips
+   whichever theme is showing and remembers it. */
 function toggleTheme() {
   const next = isDark() ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', next);
@@ -304,8 +328,7 @@ function initChrome() {
 
   document.body.insertAdjacentHTML('afterbegin', `
     <header class="site"><nav class="nav" aria-label="${L('Site', '网站导航')}">
-      <a class="brand" href="index.html">${GLOBE}
-        UNArena Platform</a>
+      <a class="brand" href="index.html" aria-label="UNArena">${BRAND_MARK}<span class="wm">UNArena</span></a>
       <div class="spacer"></div><div class="tabs">${tabs}</div>
       <a class="langlink" href="${esc(otherLangHref())}"
         ${LANG === 'zh' ? 'hreflang="en" lang="en">EN' : 'hreflang="zh-CN" lang="zh-CN">中文'}</a>
