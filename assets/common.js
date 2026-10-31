@@ -279,7 +279,8 @@ function horseshoe(members, votes, { decor = false } = {}) {
    time (style.css .brand .hs circle; it rests on the head seat under reduced motion). */
 let seatNo = 0;
 const BRAND_MARK = horseshoe([...Array(15).keys()], { 7: 'N' }, { decor: true })
-  .replace(/<circle class="(\w)"/g, (_, c) => `<circle class="${c === 'x' ? 'y' : c}" style="--i:${(seatNo++ - 7 + 15) % 15}"`);
+  .replace(/<circle class="(\w)"/g, (_, c) => `<circle class="${c === 'x' ? 'y' : c}" style="--i:${(seatNo++ - 7 + 15) % 15}"`)
+  .replace(/ r="[\d.]+"/g, ' r="4.5"');
 
 /* The half-filled circle: one button that flips between light and dark. */
 const CONTRAST = `<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
