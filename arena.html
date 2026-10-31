@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-zh="竞技场 · UNArena Platform">Arena · UNArena Platform</title>
+<script src="assets/boot.js"></script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<main>
+  <div class="cap" style="color:var(--seat)" data-zh="竞技场">The arena</div>
+  <h1 data-l="en" style="font-size:54px;max-width:17em;margin-top:12px">Fifteen seats, one model, <em style="font-weight:500;color:var(--seat)">and the resolution it writes for itself.</em></h1>
+  <h1 data-l="zh" style="max-width:17em;margin-top:12px">十五个席位，一个模型，<span style="color:var(--seat)">以及它自己写出的决议。</span></h1>
+  <p class="lede" data-l="en" style="font-size:17px;max-width:48em">Given the events up to a real Council meeting, a language model plays every
+    member: the penholder drafts, the others negotiate and amend, all fifteen vote and explain their votes. The meeting it
+    holds is its own and need not follow the real one. What we compare is where it ends up — the provisions of the final
+    text and each member's final vote — and we read the gap as the model's own leanings.</p>
+  <p class="lede" data-l="zh" style="font-size:17px;max-width:48em">给定一次真实安理会会议之前发生的事件，由一个语言模型扮演全部理事国：执笔国起草，其余各国磋商、提出修改，十五国表决并解释投票。
+    它开的是自己的会，不必与真实会议一样。我们只对照会议落在哪里——最终文本的条款和各国的最终投票——并把差距当作模型自身的倾向来读。</p>
+
+  <div class="ar-chips" id="models" role="group" aria-label="Model"></div>
+  <div class="tiles" id="tiles"></div>
+
+  <section class="ar-sec">
+    <div class="hd"><h2 data-zh="倾向">Leanings</h2><span class="cap" id="lean-base"></span></div>
+    <div class="ar-charts" id="charts"></div>
+    <p class="note" id="lean-note"></p>
+  </section>
+
+  <section class="ar-sec">
+    <div class="hd"><h2 data-zh="议题">Issues</h2><span class="cap" data-zh="选一个：真实记录、模型的会议、最终落点">Pick one: the record, the model's meetings, and where they ended up</span></div>
+    <div class="ar-chips" id="filters" role="group" aria-label="Filter"></div>
+    <div class="ar-grid" id="issues"></div>
+  </section>
+
+  <section class="ar-sec">
+    <div class="hd"><h2 data-zh="模型">Models</h2><span class="cap" data-zh="同样的会议，每个模型各扮演全部席位">Same meetings, every seat played by one model</span></div>
+    <div class="tablewrap" style="max-height:none"><table id="mtable"></table></div>
+    <p class="note" data-l="en">Positions: share of members whose final vote matches their real vote. Provisions: F1 of the final text's provisions against the real text, judged by meaning by a model that does not take part.</p>
+    <p class="note" data-l="zh">立场：最终投票与真实投票一致的理事国比例。条款：最终文本的条款与真实文本的 F1，由不参与模拟的模型按意思评判。</p>
+  </section>
+</main>
+<script src="data/arena.js"></script>
+<script src="data/zh.js"></script>
+<script src="assets/common.js"></script>
+<script src="assets/arena.js"></script>
+<script>
+const THEME = { sovereignty: L('Sovereignty, territorial integrity', '主权、领土完整'), humanitarian: L('Humanitarian access', '人道准入'),
+  civilians: L('Protection of civilians', '保护平民'), human_rights: L('Human rights', '人权'),
+  women_peace_security: L('Women, peace and security', '妇女与和平安全'), accountability: L('Accountability', '问责'),
+  sanctions: L('Sanctions', '制裁'), counter_terrorism: L('Counter-terrorism', '反恐') };
+const models = A.models.filter((m) => A.bias[m]);
+let cur = models[0];
+
+function charts(b) {
+  /* 1. members played softer or harder: non-yes share, real (hollow) vs as played (filled) */
+  const mem = Object.entries(b.members).sort((x, y) => x[1].shift - y[1].shift);
+  const pick = [...mem.slice(0, 7), ...mem.slice(-3)].filter((x, i, a) => a.findIndex((y) => y[0] === x[0]) === i);
+  const X = (v) => 140 + v * 380, H = 30;
+  let s = `<svg viewBox="0 0 400 ${pick.length * H + 28}" role="img" aria-label="${L('Share of votes not in favour, real and as played', '非赞成票比例：真实与模拟')}">`;
+  [0, 0.2, 0.4, 0.6].forEach((v) => { s += `<line x1="${X(v)}" y1="4" x2="${X(v)}" y2="${pick.length * H}" stroke="var(--grid)"/><text class="v" x="${X(v)}" y="${pick.length * H + 18}" text-anchor="middle">${v * 100}%</text>`; });
+  pick.forEach(([c, m], i) => {
+    const y = i * H + 18;
+    s += `<text x="128" y="${y + 4}" text-anchor="end">${short(c)}</text>`
+      + `<line x1="${X(m.not_yes_real)}" y1="${y}" x2="${X(m.not_yes_sim)}" y2="${y}" stroke="var(--seat)" stroke-width="2"/>`
+      + `<circle cx="${X(m.not_yes_real)}" cy="${y}" r="5" fill="var(--surface-1)" stroke="var(--ink)" stroke-width="2"><title>${short(c)}: ${pc(m.not_yes_real)} ${L('real', '真实')}</title></circle>`
+      + `<circle cx="${X(m.not_yes_sim)}" cy="${y}" r="5.5" fill="var(--seat)"><title>${short(c)}: ${pc(m.not_yes_sim)} ${L('as played', '模拟')}</title></circle>`;
+  });
+  s += '</svg>';
+  const soft = mem.filter(([, m]) => m.shift < 0).length;
+  let out = `<figure><div class="ft">${L('Who it plays softer', '它把谁演得更温和')}</div>
+    <div class="fs">${L('Share of votes not in favour: ○ real · ● as played', '非赞成票比例：○ 真实 · ● 模拟')}</div>${s}
+    <figcaption>${L(`${soft} of ${mem.length} members are played closer to yes than they really vote.`, `${mem.length} 个理事国里有 ${soft} 个被演得比现实更接近赞成。`)}</figcaption></figure>`;
+
+  /* 2. themes in the final text */
+  const th = Object.entries(b.text.themes || {}).filter(([k]) => THEME[k]).sort((x, y) => (y[1].sim - y[1].real) - (x[1].sim - x[1].real));
+  s = `<svg viewBox="0 0 400 ${th.length * 46}" role="img" aria-label="${L('Share of final texts mentioning each theme', '最终文本提到各主题的比例')}">`;
+  th.forEach(([k, v], i) => {
+    const y = i * 46;
+    s += `<text x="0" y="${y + 14}">${THEME[k]}</text>`
+      + `<rect x="0" y="${y + 20}" width="${v.real * 300}" height="8" fill="var(--axis)"/>`
+      + `<rect x="0" y="${y + 30}" width="${v.sim * 300}" height="8" fill="var(--seat)"/>`
+      + `<text class="v" x="${Math.max(v.real, v.sim) * 300 + 8}" y="${y + 37}">${pc(v.sim)} · ${L('real', '真实')} ${pc(v.real)}</text>`;
+  });
+  s += '</svg>';
+  out += `<figure><div class="ft">${L('What it writes in', '它在文本里写什么')}</div>
+    <div class="fs">${L('Share of final texts that mention: ▬ real · ▬ as written', '提到该主题的文本比例：▬ 真实 · ▬ 模拟')}</div>${s}
+    <figcaption>${L(`Its final texts run to ${b.text.words_sim} words on average, against ${b.text.words_real} in the real ones.`,
+      `它的最终文本平均 ${b.text.words_sim} 词，真实文本 ${b.text.words_real} 词。`)}</figcaption></figure>`;
+
+  /* 3. penholder's replies */
+  /* the five permanent members and the five elected members with most requests */
+  const P5N = ['China', 'France', 'Russian Federation', 'United Kingdom of Great Britain and Northern Ireland', 'United States of America'];
+  const allr = Object.entries(b.penholder_replies);
+  const rp = [...allr.filter(([c]) => P5N.includes(c)), ...allr.filter(([c]) => !P5N.includes(c)).sort((x, y) => y[1].n - x[1].n).slice(0, 5)]
+    .sort((x, y) => y[1].accepted - x[1].accepted);
+  s = `<svg viewBox="0 0 400 ${rp.length * 30 + 4}" role="img" aria-label="${L('Share of requests accepted in full', '要求被全盘接受的比例')}">`;
+  rp.forEach(([c, r], i) => {
+    const y = i * 30;
+    s += `<text x="128" y="${y + 17}" text-anchor="end">${short(c)}</text>`
+      + `<rect x="138" y="${y + 6}" width="${r.accepted * 220}" height="15" fill="${c === 'Russian Federation' ? 'var(--against)' : 'var(--seat)'}"/>`
+      + `<text class="v" x="${144 + r.accepted * 220}" y="${y + 17}">${pc(r.accepted)}</text>`;
+  });
+  s += '</svg>';
+  out += `<figure><div class="ft">${L('Whose requests it takes', '执笔国接受谁的要求')}</div>
+    <div class="fs">${L('Penholder’s replies to each member: accepted in full', '执笔国对各国修改要求的答复：全盘接受的比例')}</div>${s}
+    <figcaption>${L('The five permanent members and the five elected members that asked most.', '五个常任理事国，以及提要求最多的五个选任理事国。')}</figcaption></figure>`;
+  return out;
+}
+
+function render() {
+  const b = A.bias[cur];
+  document.getElementById('models').innerHTML = models.length > 1 ? models.map((m) =>
+    `<button type="button" aria-pressed="${m === cur}" data-m="${esc(m)}">${esc(m)}</button>`).join('') : '';
+  document.querySelectorAll('#models button').forEach((x) => x.onclick = () => { cur = x.dataset.m; render(); });
+  const P = b.positions;
+  document.getElementById('tiles').innerHTML = [
+    [L('Final positions as in reality', '最终立场与现实一致'), pc(P.same), L(`of seats, over ${b.scenarios} meetings`, `的席位，共 ${b.scenarios} 场会议`)],
+    [L('Votes in favour', '赞成票'), pc(P.Y_sim), L(`real: ${pc(P.Y_real)}`, `现实：${pc(P.Y_real)}`)],
+    [L('Abstentions', '弃权票'), pc(P.A_sim), L(`real: ${pc(P.A_real)}`, `现实：${pc(P.A_real)}`)],
+    [L('Provisions as in the real text', '条款与真实文本一致'), b.provisions.mean_f1 == null ? '—' : pc(b.provisions.mean_f1),
+      L(`F1 over ${b.provisions.n} final texts`, `${b.provisions.n} 份最终文本的 F1`)],
+  ].map(([k, v, s]) => `<div class="tile"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join('');
+  document.getElementById('lean-base').textContent = `${cur} · ${b.scenarios} ${L('replayed meetings', '场回放会议')}`;
+  document.getElementById('charts').innerHTML = charts(b);
+  document.getElementById('lean-note').textContent = L(
+    'Replays are the 2025 adoptions and the 2016–2025 drafts that failed, so the Middle East weighs heavily. Members with at least eight votes in the set.',
+    '回放包括 2025 年通过的决议和 2016–2025 年未通过的草案，中东议题占比较大。只列出在这些会议里至少投过八次票的理事国。');
+  document.getElementById('mtable').innerHTML = `<thead><tr><th>${L('Model', '模型')}</th><th>${L('Meetings', '会议')}</th>
+    <th>${L('Final positions as real', '最终立场一致')}</th><th>${L('Yes · real', '赞成 · 现实')}</th><th>${L('Provisions F1', '条款 F1')}</th></tr></thead><tbody>`
+    + models.map((m) => { const x = A.bias[m]; return `<tr><td>${esc(m)}</td><td>${x.scenarios}</td><td>${pc(x.positions.same)}</td>
+      <td>${pc(x.positions.Y_sim)} · ${pc(x.positions.Y_real)}</td><td>${x.provisions.mean_f1 == null ? '—' : pc(x.provisions.mean_f1)}</td></tr>`; }).join('') + '</tbody>';
+}
+
+/* issues: the latest meeting of each, sim against real */
+const FILTERS = [['all', L('All', '全部')], ['forecast', L('Run before the meeting', '会前运行')], ['adopted', L('Adopted in reality', '现实中通过')],
+  ['failed', L('Failed in reality', '现实中未通过')]];
+let filt = 'all';
+function issues() {
+  document.getElementById('filters').innerHTML = FILTERS.map(([k, t]) => `<button type="button" aria-pressed="${k === filt}" data-k="${k}">${t}</button>`).join('');
+  document.querySelectorAll('#filters button').forEach((x) => x.onclick = () => { filt = x.dataset.k; issues(); });
+  const ok = (m) => filt === 'all' || (filt === 'forecast' ? m.mode === 'forecast' : m.real && (filt === 'adopted' ? m.real.adopted : !m.real.adopted));
+  const latest = (iss) => (A.meetings.find((m) => m.issue === iss.slug) || {}).date || '';
+  const cards = [...A.issues].sort((x, y) => latest(y).localeCompare(latest(x))).map((iss) => {
+    const ms = A.meetings.filter((m) => m.issue === iss.slug && ok(m));
+    if (!ms.length) return '';
+    const m = ms[0];
+    const veto = m.real && m.real.vetoed;
+    return `<a class="ar-card${veto ? ' veto' : ''}" href="${issueHref(iss.slug)}">
+      <div class="cap">${ms.length} ${L(ms.length > 1 ? 'meetings' : 'meeting', '场会议')} · ${esc(m.date)}</div>
+      <div class="t">${issueName(iss.name)}</div>
+      <div class="pair"><div>${horseshoe(m.members, m.sim.votes)}${L('Model', '模型')}</div>
+        <div>${m.real ? horseshoe(m.members, m.real.votes) + L('Real', '现实') + (m.real.provisional ? ' *' : '') : `<div style="aspect-ratio:120/74;border:1px dashed var(--axis)"></div>${L('Not yet held', '尚未举行')}`}</div></div>
+      <div class="m">${m.positions_same == null ? '' : L(`positions ${pc(m.positions_same)}`, `立场 ${pc(m.positions_same)}`)}${m.provision_f1 == null ? '' : ' · ' + L(`provisions ${pc(m.provision_f1)}`, `条款 ${pc(m.provision_f1)}`)}</div></a>`;
+  }).join('');
+  document.getElementById('issues').innerHTML = cards || `<p class="note">${L('Nothing here yet.', '暂无。')}</p>`;
+}
+
+if (cur) render(); else document.getElementById('tiles').innerHTML = '';
+issues();
+</script>
+</body>
+</html>

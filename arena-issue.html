@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-zh="议题 · 竞技场 · UNArena Platform">Issue · Arena · UNArena Platform</title>
+<script src="assets/boot.js"></script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<main>
+  <a class="cap" href="arena.html" style="color:var(--seat);text-decoration:none" data-zh="← 竞技场">← Arena</a>
+  <h1 id="title" style="font-size:52px;margin-top:12px"></h1>
+  <p class="lede" id="lede" style="font-size:17px;max-width:48em"></p>
+
+  <section class="ar-sec">
+    <div class="hd"><h2 data-zh="真实记录">The record</h2><span class="cap" data-zh="会议记录里的真实投票，2016 年起">Real votes from the meeting records, since 2016</span></div>
+    <div class="ar-strip" id="strip"></div>
+    <div id="legend1"></div>
+  </section>
+
+  <section class="ar-sec">
+    <div class="hd"><h2 data-zh="模型的会议">The model's meetings</h2><span class="cap" data-zh="点开看全过程">Open one for the whole meeting</span></div>
+    <div id="meetings"></div>
+  </section>
+</main>
+<script src="data/arena.js"></script>
+<script src="data/zh.js"></script>
+<script src="assets/common.js"></script>
+<script src="assets/arena.js"></script>
+<script>
+const slug = new URLSearchParams(location.search).get('i');
+const iss = A.issues.find((x) => x.slug === slug) || A.issues[0];
+document.getElementById('title').innerHTML = issueName(iss.name);
+document.title = `${L(iss.name, ISSUE_ZH[iss.name] || iss.name)} · ${document.title}`;
+const ms = A.meetings.filter((m) => m.issue === iss.slug);
+document.getElementById('lede').textContent = L(
+  `${ms.length} simulated ${ms.length > 1 ? 'meetings' : 'meeting'} on this issue, each set against the real vote where there is one. Agenda: ${iss.agenda}.`,
+  `这个议题上有 ${ms.length} 场模拟会议，凡有真实表决的都与之对照。议程：${iss.agenda}。`);
+
+document.getElementById('strip').innerHTML = iss.record.map((r) =>
+  `<div><div class="yr">${esc(r.date.slice(0, 4))}</div>${horseshoe(r.members, r.votes)}
+    <div class="d"${r.vetoed ? ' style="color:var(--against)"' : ''}>${esc(r.document || '')}<br>${tallyOf(r.votes)}${r.adopted ? '' : ' · ' + outcome(r)}</div></div>`).join('')
+  || `<p class="note">${L('No recorded votes since 2016.', '2016 年以来没有记录在案的表决。')}</p>`;
+document.getElementById('legend1').innerHTML = legend(false);
+
+document.getElementById('meetings').innerHTML = ms.map((m) => `
+  <div class="ar-row">
+    <div><div class="who">${esc(m.date)}</div><div class="sub">${modeLabel(m)} · ${esc(m.model)}<br>${L('penholder', '执笔国')}: ${short(m.penholder)}</div>
+      <a href="${meetingHref(m)}" style="display:inline-block;margin-top:10px;font-size:13px">${L('The whole meeting →', '会议全过程 →')}</a></div>
+    <div style="display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start">
+      <div style="width:190px"><div class="cap">${L('Model', '模型')} ${SIM}</div>${horseshoe(m.members, m.sim.votes)}
+        <div class="sub">${outcome(m.sim)} ${tallyOf(m.sim.votes)}</div></div>
+      <div style="width:190px"><div class="cap">${L('Real', '现实')} ${REC}</div>${m.real ? horseshoe(m.members, m.real.votes)
+        + `<div class="sub">${outcome(m.real)} ${tallyOf(m.real.votes)} · ${esc(m.real.document || '')}${m.real.provisional ? ' · ' + L('provisional', '临时') : ''}</div>`
+        : `<div class="sub" style="margin-top:12px">${L('Not yet held', '尚未举行')}</div>`}</div>
+      <div style="flex:1 1 200px;font-size:14.5px;line-height:1.6;color:var(--text-secondary)">
+        ${m.positions_same == null ? '' : `<div>${L('Final positions as real', '最终立场一致')}: <b>${pc(m.positions_same)}</b></div>`}
+        ${m.provision_f1 == null ? '' : `<div>${L('Provisions as in the real text', '条款与真实文本一致')} (F1): <b>${pc(m.provision_f1)}</b></div>`}
+      </div>
+    </div>
+  </div>`).join('');
+</script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-zh="会议全过程 · 竞技场 · UNArena Platform">Meeting · Arena · UNArena Platform</title>
+<script src="assets/boot.js"></script>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<main>
+  <a class="cap" id="back" href="arena.html" style="color:var(--seat);text-decoration:none">← Arena</a>
+  <h1 id="title" style="font-size:46px;margin-top:12px"></h1>
+  <p class="lede" id="lede" style="font-size:16.5px;max-width:52em"></p>
+  <div class="ar-layout"><nav id="toc" aria-label="Steps"></nav><div id="body"><p class="note" data-zh="载入中…">Loading…</p></div></div>
+</main>
+<script src="data/arena.js"></script>
+<script src="data/zh.js"></script>
+<script src="assets/common.js"></script>
+<script src="assets/arena.js"></script>
+<script>
+const file = new URLSearchParams(location.search).get('f');
+const fold = (txt, n = 420) => {
+  const t = String(txt || '');
+  return t.length <= n ? `<p class="q">${esc(t)}</p>`
+    : `<p class="q">${esc(t.slice(0, n).replace(/\s\S*$/, ''))}…</p><details><summary>${L('Read in full', '展开全文')}</summary><p class="q">${esc(t)}</p></details>`;
+};
+const diffHtml = (ops) => ops.map(([op, t]) => op === '=' ? `<span class="eq">${esc(t)}</span>` : op === '-' ? `<del>${esc(t)}</del>` : `<ins>${esc(t)}</ins>`).join(' ');
+const sec = (id, title, tag, inner) => `<section class="ar-sec" id="${id}"><div class="hd"><h2>${title}</h2>${tag}</div>${inner}</section>`;
+
+function render(M) {
+  const iss = A.issues.find((x) => x.slug === M.issue);
+  document.getElementById('back').outerHTML = `<a class="cap" href="${issueHref(M.issue)}" style="color:var(--seat);text-decoration:none">← ${issueName(M.issue_name)}</a>`;
+  document.getElementById('title').innerHTML = `${issueName(M.issue_name)}, ${esc(M.date)}: <em style="font-weight:500;color:var(--seat)">${L('the model’s own meeting', '模型自己的会议')}</em>`;
+  document.getElementById('lede').innerHTML = L(
+    `Given the events up to this meeting, ${esc(M.model)} holds it from start to finish, playing all fifteen members; the penholder is ${short(M.penholder)}${M.previous ? `, starting from resolution ${esc(M.previous)}` : ''}. Its meeting need not follow the real one: only where it ends — the final text and the final positions — is set against the record. ${SIM} marks what the model wrote, ${REC} the UN’s own.`,
+    `给定这次会议之前的事件，由 ${esc(M.model)} 扮演全部十五个理事国把会开完；执笔国是${short(M.penholder)}${M.previous ? `，上一份决议是 ${esc(M.previous)}` : ''}。它的会议不必与真实会议一样，只有落点——最终文本和最终立场——与记录对照。${SIM} 是模型写的，${REC} 是联合国的记录。`);
+  const toc = [], parts = [];
+  let n = 0;
+  for (const s of M.steps) {
+    n += 1;
+    const id = `s${n}`;
+    if (s.kind === 'draft') {
+      toc.push([id, L('The draft', '零稿')]);
+      parts.push(sec(id, `${n} · ${L('The draft', '零稿')}`, SIM,
+        (s.intent ? `<div class="ar-row" style="border-top:0"><div><div class="who">${short(s.by)}</div><div class="sub">${L('penholder · its aims', '执笔国 · 意图')}</div></div><div>${fold(s.intent, 600)}</div></div>` : '')
+        + (s.text ? `<div class="cap" style="margin:10px 0 8px">${L('Zero draft', '零稿')}</div><div class="ar-text">${esc(s.text)}</div>` : '')));
+    } else if (s.kind === 'consult') {
+      const t = L(`Consultations, round ${s.round}`, `第 ${s.round} 轮磋商`);
+      toc.push([id, t]);
+      const cnt = {};
+      Object.values(s.positions).forEach((p) => { cnt[p] = (cnt[p] || 0) + 1; });
+      const rows = Object.keys(s.positions).map((c) => {
+        const req = s.requests[c] || [];
+        return `<div class="ar-row"><div><div class="who">${short(c)}</div><div class="sub">${POS_L[s.positions[c]] || esc(s.positions[c] || '')}${req.length ? ' · ' + req.length + L(' requests', ' 条要求') : ''}</div></div><div>`
+          + (req.length ? `<ul style="margin:0;padding-left:18px;font-size:14.5px;line-height:1.6">${req.map((r) => `<li><span class="mono" style="font-size:12px;color:var(--text-muted)">${esc(r.paragraph || '')} · ${esc(r.priority || '')}</span> ${esc(r.change || '')}</li>`).join('')}</ul>` : '')
+          + (s.messages[c] ? `<details><summary>${L('Message to the penholder', '给执笔国的话')}</summary><p class="q">${esc(s.messages[c])}</p></details>` : '') + '</div></div>';
+      }).join('');
+      parts.push(sec(id, `${n} · ${t}`, SIM,
+        `<div style="display:flex;gap:28px;align-items:center;flex-wrap:wrap"><div style="width:220px">${seatsPos(M.members, s.positions)}</div>
+         <p style="flex:1 1 280px;margin:0;font-size:15px;color:var(--text-secondary)">${Object.entries(cnt).map(([p, k]) => `${k} ${POS_L[p] || p}`).join(' · ')}</p></div>
+         ${legend(true)}${rows}`));
+    } else if (s.kind === 'revise' || s.kind === 'retable') {
+      const t = s.kind === 'revise' ? L(`The penholder replies (round ${s.round})`, `执笔国答复（第 ${s.round} 轮）`) : L('Retabled after the vote', '表决后改稿再付表决');
+      toc.push([id, t]);
+      const rows = Object.entries(s.replies || {}).map(([c, r]) => `<div class="ar-row"><div class="who">${short(c)}</div><p class="q">${esc(r)}</p></div>`).join('');
+      parts.push(sec(id, `${n} · ${t}`, SIM,
+        (s.summary ? `<p style="font-size:15.5px;line-height:1.6">${esc(s.summary)}</p>` : '') + (s.notes ? fold(s.notes) : '') + rows
+        + (s.diff && s.diff.length ? `<div class="cap" style="margin:22px 0 8px">${L('What changed in the text', '文本改了什么')}</div><div class="ar-text ar-diff">${diffHtml(s.diff)}</div>` : '')));
+    } else if (s.kind === 'vote') {
+      const t = L(s.vote === 'vote2' ? 'The second vote' : 'The vote', s.vote === 'vote2' ? '第二次表决' : '表决');
+      toc.push([id, t]);
+      const reasons = Object.entries(s.reasons || {}).map(([c, r]) => `<div class="ar-row"><div><div class="who">${short(c)}</div><div class="sub">${VOTE_L[s.votes[c]] || ''}</div></div>${fold(r, 260)}</div>`).join('');
+      const st = (o) => Object.entries(o).map(([c, r]) => `<div class="ar-row"><div><div class="who">${short(c)}</div><div class="sub">${L('voted', '投票')} ${VOTE_L[s.votes[c]] || ''}</div></div><div>${fold(r)}</div></div>`).join('');
+      parts.push(sec(id, `${n} · ${t}`, SIM,
+        `<div style="display:flex;gap:36px;align-items:center;flex-wrap:wrap"><div style="width:260px">${horseshoe(M.members, s.votes)}</div>
+          <div><div style="font:600 52px var(--serif);line-height:1">${s.tally.in_favour} · ${s.tally.against} · ${s.tally.abstaining}</div>
+          <div class="cap" style="margin-top:10px">${outcome(s)}${s.vetoed_by && s.vetoed_by.length ? ' · ' + L('veto: ', '否决：') + s.vetoed_by.map(short).join(', ') : ''}</div></div></div>
+          ${legend(false)}
+          <details style="margin-top:16px"><summary>${L('Why each member voted as it did (private reasoning)', '各国的投票理由（不公开的内部考虑）')}</summary>${reasons}</details>`));
+      if (Object.keys(s.before).length + Object.keys(s.after).length) {
+        n += 1;
+        const id2 = `s${n}`;
+        toc.push([id2, L('Statements', '发言')]);
+        parts.push(sec(id2, `${n} · ${L('Statements', '发言')}`, SIM,
+          (Object.keys(s.before).length ? `<div class="cap">${L('Before the vote', '表决前')}</div>${st(s.before)}` : '')
+          + (Object.keys(s.after).length ? `<div class="cap" style="margin-top:22px">${L('After the vote', '表决后')} · ${Object.keys(s.after).length}</div>${st(s.after)}` : '')));
+      }
+    }
+  }
+  /* where it ended up: final positions and final text against the record */
+  n += 1;
+  const last = [...M.steps].reverse().find((s) => s.kind === 'vote');
+  toc.push([`s${n}`, L('Where it ended up', '最终落点')]);
+  let fin = '';
+  if (M.record) {
+    const same = Object.keys(M.record.votes).filter((c) => last.votes[c] === M.record.votes[c]).length;
+    const diff = Object.keys(M.record.votes).filter((c) => last.votes[c] && last.votes[c] !== M.record.votes[c]);
+    fin += `<div style="display:flex;gap:36px;flex-wrap:wrap;align-items:flex-start">
+      <div style="width:220px"><div class="cap">${L('Model', '模型')} ${SIM}</div>${horseshoe(M.members, last.votes)}<div class="sub mono" style="font-size:12.5px">${outcome(last)} ${tallyOf(last.votes)}</div></div>
+      <div style="width:220px"><div class="cap">${L('Real', '现实')} ${REC}</div>${horseshoe(M.members, M.record.votes)}<div class="sub mono" style="font-size:12.5px">${outcome(M.record)} ${tallyOf(M.record.votes)} · ${esc(M.record.document || '')}</div></div>
+      <div style="flex:1 1 260px;font-size:15px;line-height:1.6;color:var(--text-secondary)">${L(`Final positions match on ${same} of ${Object.keys(M.record.votes).length} members who voted.`, `在实际投票的 ${Object.keys(M.record.votes).length} 个理事国中，有 ${same} 个最终立场一致。`)}
+        ${diff.length ? `<ul style="padding-left:18px">${diff.map((c) => `<li>${short(c)}: ${L('model', '模型')} ${VOTE_L[last.votes[c]]}, ${L('real', '现实')} ${VOTE_L[M.record.votes[c]]}</li>`).join('')}</ul>` : ''}
+        ${M.record.provisional ? `<p class="note">${L('Real result from UN press releases, provisional until the meeting record is out.', '真实结果取自联合国新闻稿，会议记录发布前为临时结果。')}</p>` : ''}</div></div>`;
+  } else fin += `<p class="note">${L('The real meeting has not been held yet, or its record is not out.', '真实会议尚未举行，或记录尚未发布。')}</p>`;
+  if (M.compare) {
+    const li = (L2) => L2.map((x) => `<li>${esc(x.label)}${x.match === 'partial' ? ` <span class="note">(${L('partly', '部分')}${x.note ? ': ' + esc(x.note) : ''})</span>` : ''}</li>`).join('');
+    fin += `<div class="cap" style="margin:30px 0 10px">${L('Final text, provision by provision', '最终文本，逐条对照')} · F1 ${pc(M.compare.provision_f1)}</div>
+      <div class="ar-three"><div><div class="cap">${L('In both', '两边都有')} · ${M.compare.in_both.length}</div><ul>${li(M.compare.in_both)}</ul></div>
+      <div><div class="cap">${L('Only in the real text', '只在真实文本里')} · ${M.compare.only_real.length}</div><ul>${li(M.compare.only_real)}</ul></div>
+      <div><div class="cap" style="color:var(--seat)">${L('Only in the model’s', '只在模型文本里')} · ${M.compare.only_sim.length}</div><ul>${li(M.compare.only_sim)}</ul></div></div>
+      <p class="note">${L(`Compared by meaning by ${esc(A.judge)}, which takes no part in the meetings.`, `由不参与会议的 ${esc(A.judge)} 按意思对照。`)}</p>`;
+  }
+  parts.push(sec(`s${n}`, `${n} · ${L('Where it ended up', '最终落点')}`, M.record ? REC : '', fin));
+  document.getElementById('toc').innerHTML = toc.map(([id, t]) => `<a href="#${id}">${t}</a>`).join('');
+  document.getElementById('body').innerHTML = parts.join('');
+}
+
+fetch(`data/arena/${encodeURIComponent(file)}`).then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(render)
+  .catch(() => { document.getElementById('body').innerHTML = `<p class="note">${L('This meeting could not be loaded. Open the site through a web server (the pages are not readable from a local file).', '无法载入这场会议。请通过网页服务器打开本站（本地文件方式无法读取）。')}</p>`; });
+</script>
+</body>
+</html>

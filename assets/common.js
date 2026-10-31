@@ -158,6 +158,7 @@ const NAV = [
                       ['geo.html', 'Map', '地图']]],
   ['Data', '数据', [['browse.html', 'Records', '会议记录'], ['timeline.html', 'Charts by year', '年度图表'],
                    ['assessment.html', 'Analysis', '分析']]],
+  ['arena.html', 'Arena', '竞技场'],
   ['live.html', 'Live', '实时'],
 ];
 const PAGES = NAV.flatMap((n) => (Array.isArray(n[2]) ? n[2] : [n]));
@@ -167,6 +168,8 @@ const PAGES = NAV.flatMap((n) => (Array.isArray(n[2]) ? n[2] : [n]));
 const NAV_ALIAS = {
   'entry.html': 'entries.html',
   'story.html': 'index.html',
+  'arena-issue.html': 'arena.html',
+  'arena-meeting.html': 'arena.html',
 };
 
 /* Entry pages fetch their background material over HTTP. Opened from disk,
@@ -257,10 +260,11 @@ const GLOBE = `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke
    seat voted yes, a hollow one abstained, a red one voted no (from a permanent
    member, a veto); a dashed seat did not vote or is not known.
    members: names in seat order; votes: {name: 'Y'|'N'|'A'}. */
-const SEAT = { Y: ['y', 5.5, 'in favour', '赞成'], N: ['n', 6.5, 'against', '反对'], A: ['a', 4.8, 'abstained', '弃权'] };
+const SEAT = { Y: ['y', 5.5, 'in favour', '赞成'], N: ['n', 6.5, 'against', '反对'], A: ['a', 4.8, 'abstained', '弃权'],
+  W: ['w', 5.5, 'supports with changes', '支持但要求修改'] };
 function horseshoe(members, votes, { decor = false } = {}) {
   const n = members.length, span = 200, R = 46;
-  const count = { Y: 0, N: 0, A: 0 };
+  const count = { Y: 0, N: 0, A: 0, W: 0 };
   const seats = members.map((m, i) => {
     const th = (180 + (span - 180) / 2 - (n > 1 ? i * span / (n - 1) : span / 2)) * Math.PI / 180;
     const [cls, r, en, zh] = SEAT[votes[m]] || ['x', 5, 'did not vote', '未投票'];
